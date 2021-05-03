@@ -3,14 +3,6 @@
 ## Shibboleth Kurulum
 
 
-### Kurulum Makinası Credentials 
-
-Kullanıcı adı: student
-Kullanıcı şifre: !eduG41N2021#
-VM: vm-000053.vm.geant.org
-
-ssh student@vm-000053.vm.geant.org
-
 
 ### Kurulum Öncesi Paket Gereksinimleri
 
