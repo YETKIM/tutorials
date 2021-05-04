@@ -15,6 +15,7 @@
 	3. [Shibboleth 4.1.0 (IDP) Kurulumu](#shibboleth-kurulumu)
 	4. [Jetty 9 Web Server Kurulumu](#jetty-9-web-server-kurulumu)
 	5. [Jetty 9 Web Server Yapılandırma](#jetty-9-web-server-yapılandırma)
+	6. [Apache Server Kurulumu](#apache-server-kurulumu)
 
 ## Gereksinimler
 
@@ -310,4 +311,65 @@ Bu aşamada Jetty server, servis olarak ayağa kaldırılmıştır. Yukarıdaki 
 	systemctl restart jetty.service
 	bash /opt/shibboleth-idp/bin/status.sh
 	```
+
+5. Apache kurulumuna geçmeden önce Jetty server çalışır durumunu detaylı kontrol edebiliriz. Jetty konfigürasyon dosyalarına baktığımızda `127.0.0.1` adresinde ve `8080` portu üzerinde çalışması beklenir.  Bu sebepten dolayı aşağıdaki komut ile Jetty server üzerinden Shibboleth durumunu kontrol edebiliriz. 
+	``` shell 
+	curl http://localhost:8080/idp/status
+	```
+
+	Bu aşamada Shibboleth için detaylı konfigürasyonlar yapılmadığından bu ayarların yapılmadığı hakkında bilgi verecektir. 
+
+
+### Apache Server Konfigürasyonu
+Shibboleth arka tarafta (back-end) Jetty Server kullanmaktadır. Ancak kullanıcı arayüzü için ayrıca bir server kurmamız gerekir. Ön tarafta (front-end) kullanıcılara hizmet verecek bu sunucu Apache olacaktır. 
+
+Paketler arasında zaten Apache 2'yi yüklemiştik. Bu sebepten direk konfigürasyona geçilecektir.
+
+1. ROOT kullanıcısı olunur
+	``` shell 
+	sudo su -
+	```
+
+2. Daha önce verdiğimiz ortam değişkeni `hostname` ile `DocumentRoot`oluşturulur
+	``` shell 
+	mkdir /var/www/html/$(hostname -f)
+	sudo chown -R www-data: /var/www/html/$(hostname -f)
+	```
+
+3. `VirtualHost` dosyası oluşturulur. Buradaki en önemli ayar `ProxyPass` ayarıdır. Görüldüğü üzere Apache sunucusuna 80 portundan gelen `/idp` istekleri daha önceden kurduğumuz Jetty `http://localhost:8080/idp` sayfasına yönlenecektir. 
+
+	Konfigürasyon dosyasında dikkati çeken bir diğer durum ise `SSLCertificateFile` ve `SSLCertificateKeyFile` değerleridir. Apache sertifika olarak `/etc/ssl/certs` ve `/etc/ssl/private` altında sertifika dosyaları istemektedir. Ancak bu aşamada herhangi bir sertifikamız bulunmamaktadır. 
+
+	``` shell 
+	wget https://registry.idem.garr.it/idem-conf/shibboleth/IDP4/apache2/idp.example.org.conf -O /etc/apache2/sites-available/$(hostname -f).conf
+	```
+
+4. Apache konfigürasyon dosyasındaki örnek hostname yani `idp.example.org` yerine `<HOSTNAME>` değeri girilir. 
+	``` shell 
+	vim /etc/apache2/sites-available/$(hostname -f).conf
+	```
+
+5. Sertifikalar, Apache konfigürasyonunda belirtilen yerlere yerleştirilir. Eğer imzalı bir sertifikanız yoksa aşağıdaki gibi sertifika oluşturulabilir.
+	``` shell 
+	openssl req -x509 -newkey rsa:4096 -keyout /etc/ssl/private/$(hostname -f).key -out /etc/ssl/certs/$(hostname -f).crt -nodes -days 1095
+	chmod 400 /etc/ssl/private/$(hostname -f).key
+	chmod 644 /etc/ssl/certs/$(hostname -f).crt
+	```
+
+
+6. Apache için oluşturduğumuz konfigürasyon aktif (`$(hostname -f).conf`) diğer konfigürasyonlar (`000-default.conf` ve `default-ssl`) ise inaktif duruma getirilirler. Aynı zamanda kullanıcılacak olan modlar da aktif hale getirilir.
+	``` shell 
+	a2enmod proxy_http ssl headers alias include negotiation
+	a2ensite $(hostname -f).conf
+	a2dissite 000-default.conf default-ssl
+	systemctl restart apache2.service
+	```
+
+7. Bu aşamada uygulamamızı kontrol edebiliriz. 
+	
+	Aşağıdaki linkte örnek bir metadata olacaktır. 
+	`https://<HOSTNAME>/idp/shibboleth` 
+
+
+
 
