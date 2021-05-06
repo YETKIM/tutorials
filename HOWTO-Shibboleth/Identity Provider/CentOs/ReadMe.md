@@ -1,12 +1,70 @@
 
+# HOWTO Install and Configure a Shibboleth IdP v4.1.0 on CentOS 7 Apache2 + Jetty9
 
-## Shibboleth Kurulum
+<img src="https://www.tubitak.gov.tr/sites/default/files/tubitak_logo.png" alt="TÜRKİYE BİLİMSEL VE TEKNOLOJİK ARAŞTIRMA KURUMU" id="logo">
 
 
+
+## İçindekiler
+
+1. [Gereksinimler](#gereksinimler)
+	1. [Donanım](#donanım)
+	2. [Diğer](#diğer)
+2. [Kurulacak Yazılımlar](#kurulacak-yazılımlar)
+3. [Kurulum Komutları](#kurulum-komutları)
+	1. [Yazılım Gereksinimlerinin Yüklenmesi](#yazılım-gereksinimlerinin-yüklenmesi)
+	2. [Yapılandırma (Configuration)](#yapılandırma)
+	3. [Shibboleth 4.1.0 (IDP) Kurulumu](#shibboleth-kurulumu)
+	4. [Jetty 9 Web Server Kurulumu](#jetty-9-web-server-kurulumu)
+	5. [Jetty 9 Web Server Yapılandırma](#jetty-9-web-server-yapılandırma)
+	6. [Apache Server Kurulumu](#apache-server-kurulumu)
+
+## Gereksinimler
+
+### Donanım
+
+ * CPU: 2 Core (64 bit)
+ * RAM: 4 GB
+ * HDD: 20 GB
+ * OS: CentOS 7
+ 
+### Diğer
+
+ * SSL Kimlik bilgileri: HTTPS Sertifikası & Anahtarı
+ * Logo:
+   * boyut: 80x60 px 
+   * format: PNG
+ * Favicon: 
+   * boyut: 16x16 px 
+   * format: PNG
+
+
+## Kurulacak Yazılımlar
+
+ * ca-certificates
+ * ntp
+ * vim
+ * Amazon Corretto 11 JDK
+ * jetty 9.4.x
+ * apache2 (>= 2.4)
+ * openssl
+ * gnupg
+ * libservlet3.1-java
+ * liblogback-java
+ * default-mysql-server (if JPAStorageService is used)
+ * libmariadb-java (if JPAStorageService is used)
+ * libcommons-dbcp-java (if JPAStorageService is used)
+ * libcommons-pool-java (if JPAStorageService is used)
+
+
+## Kurulum Komutları
 
 ### Kurulum Öncesi Paket Gereksinimleri
 
 https://github.com/ConsortiumGARR/idem-tutorials/blob/master/idem-fedops/HOWTO-Shibboleth/Identity%20Provider/CentOS/HOWTO%20Install%20and%20Configure%20a%20Shibboleth%20IdP%20v4.x%20on%20CentOS%20with%20Apache2%20%2B%20Jetty9.md
+
+
+>BU DÖKÜMAN GÜNCELLENME AŞAMASINDADIR. YUKARIDAKİ LİNK ÜZERİNDEN KURULUM TEST EDİLMİŞTİR.
 
 
 - Öncelikle kurulum öncesinde sistem güncellenir.
@@ -244,50 +302,6 @@ https://github.com/ConsortiumGARR/idem-tutorials/blob/master/idem-fedops/HOWTO-S
 		bash /opt/shibboleth-idp/bin/status.sh
 	```
 
-#### Configure the Directory (openLDAP or AD) Connection
 
-https://wiki.shibboleth.net/confluence/display/IDP4/PersistentNameIDGenerationConfiguration
-
-İlgili komutlar çalıştırıldı...
-
-#### Configure the attribute resolver (sample)
-
-İlgili komutlar çalıştırıldı...
-
-#### Configure Shibboleth Identity Provider to release the eduPersonTargetedID
-
-İlgili komutlar çalıştırıldı...
-
-#### Configure the attribute resolution with Attribute Registry
-
-İlgili komutlar çalıştırıldı...
-
-#### Configure Shibboleth IdP Logging
-
-- - 
-
-#### Translate IdP messages into preferred language
-
-- - 
-
-#### Disable SAML1 Deprecated Protocol
-
-- - 
-
-#### Secure cookies and other IDP data
-
-İlgili komutlar çalıştırıldı... (optional hariç)
-
-
-
-
-### Connect an SP with the IdP
-
-
-
-https://vm-000067.vm.geant.org/Shibboleth.sso/Login?entityID=https://vm-000053.vm.geant.org/idp/shibboleth&target=/secure
-
-Username :: user1
-Password :: password
 
 
