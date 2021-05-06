@@ -16,6 +16,7 @@
 	2. [LDAP Konfigürasyon](#ldap-konfigürasyon)
 5. [Kullanışlı Kaynaklar](#kullanışlı-kaynaklar)
 	1. [LDIF](#ldif)
+	2. [LDAP Araçları](#ldap-araçları)
 
 
 
@@ -26,7 +27,6 @@
 
  * CPU: 2 Core (64 bit)
  * RAM: 4 GB
- * HDD: 20 GB
  * OS: Ubuntu 20.04 LTS
 
 
@@ -373,15 +373,114 @@
 	```
 
 
-7. Install needed schemas (eduPerson, SCHAC, Password Policy):
+7. Gerekli şemaların yüklenmesi gerekir(eduPerson, SCHAC, Password Policy) Şemalar yüklendikten sonra `ldapsearch` komutu ile kontrol edilir.
+	```shell
+	cd /etc/ldap/schema
+	sudo curl https://raw.githubusercontent.com/YETKIM/tutorials/master/miscellaneous/ldap/schemas/eduperson.ldif -o eduperson.ldif
+	sudo curl https://raw.githubusercontent.com/YETKIM/tutorials/master/miscellaneous/ldap/schemas/schac.ldif -o schac.ldif
+	sudo ldapadd -Y EXTERNAL -H ldapi:/// -f /etc/ldap/schema/eduperson.ldif
+	sudo ldapadd -Y EXTERNAL -H ldapi:/// -f /etc/ldap/schema/schac.ldif
+	sudo ldapsearch -Y EXTERNAL -H ldapi:/// -b cn=schema,cn=config dn
+	```
 
-	BURADA KALINDI ...
-	BURADA KALINDI ...
+
+8. Test kullanıcılarını `People` içersine oluşturulabilir.
+	```shell
+	sudo vim /etc/ldap/scratch/user1.ldif
+	```
+
+		# USERNAME: user1 , PASSWORD: user1
+		# Generate a new password with: sudo slappasswd -s <newPassword>
+		dn: uid=user1,ou=people,dc=yetkim,dc=ulakbim,dc=gov,dc=tr
+		changetype: add
+		objectClass: inetOrgPerson
+		objectClass: eduPerson
+		uid: user1
+		sn: User1
+		givenName: Test
+		cn: Test User1
+		displayName: Test User1
+		preferredLanguage: en
+		userPassword: {SSHA}8zAA11p1eJpbN7kQIzlzoGxL9QhSymBY
+		mail: test.user1@example.org
+		eduPersonAffiliation: student
+		eduPersonAffiliation: staff
+		eduPersonAffiliation: member
 
 
+	```shell
+	sudo ldapadd -D "cn=root,dc=yetkim,dc=ulakbim,dc=gov,dc=tr" -W -f /etc/ldap/scratch/user1.ldif
+	```
 
----
----
+	Eklediğimiz yeni kullanıcı `idpuser` kullanıcı tarafından test edilir. Burada `idpuser` kullanıcı şifresi girilmesi gerekir.
+	```shell
+	sudo ldapsearch -x -D 'cn=idpuser,ou=system,dc=yetkim,dc=ulakbim,dc=gov,dc=tr' -W -b "uid=user1,ou=people,dc=yetkim,dc=ulakbim,dc=gov,dc=tr"
+	```
+
+
+9. `memberof` konfigürasyonu eklenmesi çalışma durumundadır. 
+
+	`memberof` konfigürasyonun eklenmesi
+
+	```shell
+	sudo vim /etc/ldap/scratch/add_memberof.ldif
+	```
+
+		dn: cn=module,cn=config
+		cn: module
+		objectClass: olcModuleList
+		olcModuleLoad: memberof
+		olcModulePath: /usr/lib/ldap/
+
+		dn: olcOverlay={0}memberof,olcDatabase={1}mdb,cn=config
+		objectClass: olcConfig
+		objectClass: olcMemberOf
+		objectClass: olcOverlayConfig
+		objectClass: top
+		olcOverlay: memberof
+		olcMemberOfDangling: ignore
+		olcMemberOfRefInt: TRUE
+		olcMemberOfGroupOC: groupOfNames
+		olcMemberOfMemberAD: member
+		olcMemberOfMemberOfAD: memberOf
+
+	```shell
+	sudo ldapadd -Q -Y EXTERNAL -H ldapi:/// -f /etc/ldap/scratch/add_memberof.ldif
+	```
+
+	Burada `refint{1}` modulu eklenir. Ancak bu aşamada şuan için `ldap_add: Undefined attribute type (17)` hatası almaktadır. 
+	```shell
+	sudo vim /etc/ldap/scratch/add_refint1.ldif
+	```
+
+		dn: cn=module{0},cn=config
+		add: olcmoduleload
+		olcmoduleload: refint 
+
+
+	```shell
+	sudo ldapadd -Q -Y EXTERNAL -H ldapi:/// -f /etc/ldap/scratch/add_refint1.ldif
+	```
+
+
+	Burada `refint{2}` modulu eklenir.
+	```shell
+	sudo vim /etc/ldap/scratch/add_refint2.ldif
+	```
+
+		dn: olcOverlay={1}refint,olcDatabase={1}mdb,cn=config
+		objectClass: olcConfig
+		objectClass: olcOverlayConfig
+		objectClass: olcRefintConfig
+		objectClass: top
+		olcOverlay: {1}refint
+		olcRefintAttribute: memberof member manager owner
+
+
+	```shell
+	sudo ldapadd -Q -Y EXTERNAL -H ldapi:/// -f /etc/ldap/scratch/add_refint2.ldif
+	```
+
 
 ## Kullanışlı Kaynaklar
 ### LDIF
@@ -390,4 +489,7 @@
 - http://www.zytrax.com/books/ldap/ch6/
 - http://www.zytrax.com/books/ldap/ch8/
 - https://www.digitalocean.com/community/tutorials/how-to-use-ldif-files-to-make-changes-to-an-openldap-system
+
+### LDAP Araçları
+- [Apache Directory Studio](https://directory.apache.org/studio/)
 
