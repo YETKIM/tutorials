@@ -1,4 +1,4 @@
-# HOWTO Install and Configure a Shibboleth IdP v4.1.0 on Ubuntu 20.04 LTS with Apache2 + Jetty9
+# Ubuntu 20.04 LTS - Shibboleth IDP v4.1.0 Kurulumu
 
 <img src="https://www.tubitak.gov.tr/sites/default/files/tubitak_logo.png" alt="TÜRKİYE BİLİMSEL VE TEKNOLOJİK ARAŞTIRMA KURUMU" id="logo">
 
@@ -22,10 +22,10 @@
 	1. [Persistent NameID](#persistent-nameid)
 	2. [Attribute Resolver](#attribute-resolver)
 	3. [eduPersonTargetedID](#edupersontargetedid)
-	4. [Attribute Resolution & Attribute Registry](#attribute-resolution-&-attribute-registry)
+	4. [Attribute Registry ile Attribute Resolution Konfigüre Etme](#attribute-registry-ile-attribute-resolution-konfigüre-etme)
+	5. [SAML1 Devre Dışı Bırakma](#saml1-devre-dışı-bırakma)
 6. [YETKİM Test Federasyonuna Kayıt](#yetkim-test-federasyonuna-kayıt)
 7. [Kullanışlı Kaynaklar](#kullanışlı-kaynaklar)
-	1. [LDIF](#ldif)
 	
 
 ## Gereksinimler
@@ -185,16 +185,16 @@ Kimlik Sağlayıcı yani IDP, kullanıcıların yetkilendirmesini ve Servis Sağ
 		Installation Directory: [/opt/shibboleth-idp] ?
 
 		INFO [net.shibboleth.idp.installer.V4Install:158] - New Install.  Version: 4.1.0
-		INFO [net.shibboleth.idp.installer.V4Install:601] - Creating idp-signing, CN = 193.140.63.125 URI = https://193.140.63.125/idp/shibboleth, keySize=3072
-		INFO [net.shibboleth.idp.installer.V4Install:601] - Creating idp-encryption, CN = 193.140.63.125 URI = https://193.140.63.125/idp/shibboleth, keySize=3072
+		INFO [net.shibboleth.idp.installer.V4Install:601] - Creating idp-signing, CN = idp.example.org URI = https://idp.example.org/idp/shibboleth, keySize=3072
+		INFO [net.shibboleth.idp.installer.V4Install:601] - Creating idp-encryption, CN = idp.example.org URI = https://idp.example.org/idp/shibboleth, keySize=3072
 		Backchannel PKCS12 Password:
 		Re-enter password:
-		INFO [net.shibboleth.idp.installer.V4Install:644] - Creating backchannel keystore, CN = 193.140.63.125 URI = https://193.140.63.125/idp/shibboleth, keySize=3072
+		INFO [net.shibboleth.idp.installer.V4Install:644] - Creating backchannel keystore, CN = idp.example.org URI = https://idp.example.org/idp/shibboleth, keySize=3072
 		Cookie Encryption Key Password:
 		Re-enter password:
-		INFO [net.shibboleth.idp.installer.V4Install:685] - Creating backchannel keystore, CN = 193.140.63.125 URI = https://193.140.63.125/idp/shibboleth, keySize=3072
+		INFO [net.shibboleth.idp.installer.V4Install:685] - Creating backchannel keystore, CN = idp.example.org URI = https://idp.example.org/idp/shibboleth, keySize=3072
 		INFO [net.shibboleth.utilities.java.support.security.BasicKeystoreKeyStrategyTool:166] - No existing versioning property, initializing...
-		SAML EntityID: [https://193.140.63.125/idp/shibboleth] ?
+		SAML EntityID: [https://idp.example.org/idp/shibboleth] ?
 
 		Attribute Scope: [140.63.125] ?
 
@@ -616,8 +616,58 @@ Diğer `DataConnector` değerinin ise `persistance NameID` değerini almak için
 	```
 
 
-### Attribute Resolution & Attribute Registry
-Detaylar eklenecek
+### Attribute Registry ile Attribute Resolution Konfigüre Etme
+1. `schac.xml` indirilir
+	``` shell 
+	wget https://raw.githubusercontent.com/YETKIM/tutorials/master/HOWTO-Shibboleth/Identity%20Provider/Ubuntu/20.04%20LTS/conf/schac.xml -O /opt/shibboleth-idp/conf/attributes/schac.xml
+	```
+
+2. `default-rules.xml` içerisine `schac.xml` eklenir
+	``` shell 
+	vim /opt/shibboleth-idp/conf/attributes/default-rules.xml
+	```
+
+	    	<!-- ...other things ... -->
+		    <import resource="inetOrgPerson.xml" />
+		    <import resource="eduPerson.xml" />
+		    <import resource="eduCourse.xml" />
+		    <import resource="samlSubject.xml" />
+		    <import resource="schac.xml" />
+		</beans>
+
+
+### SAML1 Devre Dışı Bırakma
+1. IDP metadata içerisindeki SAML1 protokolleri kaldırılır.
+
+	``` shell 
+	vim /opt/shibboleth-idp/metadata/idp-metadata.xml
+	```
+
+	- `<EntityDescriptor>` içerisinde bulunan `validUntil` değeri kaldırılır
+	- `<IDPSSODescriptor>` elemanı için,
+		- `<mdui:UIInfo>` elemanını dışındaki yorumlar kaldırılmalı
+		- `<ArtifactResolutionService Binding="urn:oasis:names:tc:SAML:1.0:bindings:SOAP-binding" Location="https://XX.XX.XX.XX:8443/idp/profile/SAML1/SOAP/ArtifactResolution" index="1"/>`satırı kaldırılmalı
+		- `<ArtifactResolutionService Binding="urn:oasis:names:tc:SAML:2.0:bindings:SOAP" Location="https://XX.XX.XX.XX:8443/idp/profile/SAML2/SOAP/ArtifactResolution" index="1"/>` index değeri 1 olarak değiştirilmeli
+		- `<SingleLogoutService`elemanlarının yorumları kaldırılmalı
+		- `<SingleLogoutService>` ile `<SingleSignOnService>` elemanları arasına aşağıdaki 2 satır eklenmeli
+			
+			<NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:transient</NameIDFormat>
+    		<NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:persistent</NameIDFormat>
+
+		- `<SingleSignOnService Binding="urn:mace:shibboleth:1.0:profiles:AuthnRequest" Location="https://idp.example.org/idp/profile/Shibboleth/SSO"/>` satırı kaldırılmalı 
+		- :8443 olan tüm portlar kaldırılmalı çünkü bu port artık kullanılmamaktadır
+	- `AttributeAuthorityDescriptor` elemanını için,
+		- `urn:oasis:names:tc:SAML:1.1:protocol` yerine `urn:oasis:names:tc:SAML:2.0:protocol` getirilmeli
+		- `<AttributeService Binding="urn:oasis:names:tc:SAML:2.0:bindings:SOAP" Location="https://idp.example.org/idp/profile/SAML2/SOAP/AttributeQuery"/>` yorumdan çıkarılmalı
+		- `<AttributeService Binding="urn:oasis:names:tc:SAML:1.0:bindings:SOAP-binding" Location="https://idp.example.org:8443/idp/profile/SAML1/SOAP/AttributeQuery"/>` kaldırılmalı
+		- :8443 olan tüm portlar kaldırılmalı çünkü bu port artık kullanılmamaktadır
+		- Yorumlar kaldırılmalı
+
+	- Tüm yorum (comment) içerikli satırlar kaldırılmalıdır
+
+
+2. Metadata url üzerinden kontrol edilir
+	- https://idp.example.org/idp/shibboleth
 
 
 
@@ -634,6 +684,4 @@ Detaylar Eklenecek
 - https://wiki.shibboleth.net/confluence/display/CONCEPT/NameIdentifiers
 - https://wiki.shibboleth.net/confluence/display/IDP4/AttributeResolverConfiguration
 - https://wiki.shibboleth.net/confluence/display/IDP4/AACLI
-
-
 
