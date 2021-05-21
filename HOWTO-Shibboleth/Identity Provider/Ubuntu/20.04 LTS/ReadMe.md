@@ -524,11 +524,96 @@ Servis sağlayıcı, kimlik sağlayıcıdan `persistance NameID` talebinde bulun
 
 
 ### Attribute Resolver
-Detaylar eklenecek
+- https://wiki.shibboleth.net/confluence/display/IDP4/AttributeResolverConfiguration
+- https://wiki.shibboleth.net/confluence/display/IDP4/AACLI
+
+Öznitelik çözümlemesi, özne kimlik doğrulaması hakkında veri toplama işlemidir ve bu işlem öznitelik çözümleyici (`attribute resolver`) ile gerçekleştirilmektedir. Politikaları uygulamak ve ardından bu bilgilerin bir alt kümesini bağlı taraflara sağlamak için kullanılırlar. 
+
+Çözümleyici hizmeti esasen bir meta dizindir. Meta dizin denilmesinin sebebi bilgi tutmamasıdır, ancak çeşitli kaynaklardan bilgi toplayan, bunları birleştiren, dönüştüren ve `IdPAttribute` nesnelerinin son bir koleksiyonunu oluşturan öznitelik tanımlarının (`attribute definition`) ve veri bağlayıcılarının yönlendirilmiş bir grafiğini içerir.
+
+Shibboleth için `attribute-resolver` konfigürasyon dosyası `/opt/shibboleth-idp/conf` dizini altında bulunmaktadır. Ancak bu aşamada örnek konfigürasyon indererek kurulama devam edeceğiz. 
+
+Örnek dosyamızda (https://raw.githubusercontent.com/YETKIM/tutorials/master/HOWTO-Shibboleth/Identity%20Provider/Ubuntu/20.04%20LTS/conf/attribute-resolver-v4-idem-sample.xml) görüldüğü üzere `AttributeDefinition` ile nitelikler tanımlanmıştır. `InputDataConnector ref="myLDAP"` olan nitelikler(`attribute`) değerlerini `DataConnector id="myLDAP"` içerisinden almaktadır. 
+
+
+	<DataConnector id="myLDAP" xsi:type="LDAPDirectory"
+        ldapURL="%{idp.attribute.resolver.LDAP.ldapURL}"
+        baseDN="%{idp.attribute.resolver.LDAP.baseDN}"
+        principal="%{idp.attribute.resolver.LDAP.bindDN}"
+        principalCredential="%{idp.attribute.resolver.LDAP.bindDNCredential}"
+        useStartTLS="%{idp.attribute.resolver.LDAP.useStartTLS}"
+        connectTimeout="%{idp.attribute.resolver.LDAP.connectTimeout}"
+        trustFile="%{idp.attribute.resolver.LDAP.trustCertificates}"
+        responseTimeout="%{idp.attribute.resolver.LDAP.responseTimeout}"
+        multipleResultsIsError="true"
+        exportAttributes="%{idp.attribute.resolver.LDAP.exportAttributes}">
+        <FilterTemplate>
+            <![CDATA[
+                %{idp.attribute.resolver.LDAP.searchFilter}
+            ]]>
+        </FilterTemplate>
+        <ConnectionPool
+            minPoolSize="%{idp.pool.LDAP.minSize:3}"
+            maxPoolSize="%{idp.pool.LDAP.maxSize:10}"
+            blockWaitTime="%{idp.pool.LDAP.blockWaitTime:PT3S}"
+            validatePeriodically="%{idp.pool.LDAP.validatePeriodically:true}"
+            validateTimerPeriod="%{idp.pool.LDAP.validatePeriod:PT5M}"
+            validateDN="%{idp.pool.LDAP.validateDN:}"
+            validateFilter="%{idp.pool.LDAP.validateFilter:(objectClass=*)}"
+            expirationTime="%{idp.pool.LDAP.idleTime:PT10M}"/>
+
+    </DataConnector>
+
+
+`DataConnector` incelendiğinde, `exportAttributes="%{idp.attribute.resolver.LDAP.exportAttributes}"` değeri dikkat çekmektedir. Çünkü daha önce LDAP konfigürasyonu yaptığımız `vim /opt/shibboleth-idp/conf/ldap.properties` dosyasında dışa aktarılacak nitelikleri(`attribute`) burada belirlemiştik. Şimdi bu nitelikler alınarak `AttributeDefinition` ile tanımlanacaktır. 
+
+	<AttributeDefinition scope="%{idp.scope}" xsi:type="Scoped" id="eduPersonPrincipalName">
+        <InputDataConnector ref="myLDAP" attributeNames="%{idp.persistentId.sourceAttribute}" />
+    </AttributeDefinition> 
+
+
+Diğer `DataConnector` değerinin ise `persistance NameID` değerini almak için kullanıldığını görmekteyiz.
+
+
+1. Örnek konfigürasyon dosyası indirilir.
+	``` shell 
+	wget https://raw.githubusercontent.com/YETKIM/tutorials/master/HOWTO-Shibboleth/Identity%20Provider/Ubuntu/20.04%20LTS/conf/attribute-resolver-v4-idem-sample.xml -O /opt/shibboleth-idp/conf/attribute-resolver.xml
+	```
+
+2. Aşağıdaki satırlar kaldırılır
+	
+	>useStartTLS="%{idp.attribute.resolver.LDAP.useStartTLS:true}"
+	trustFile="%{idp.attribute.resolver.LDAP.trustCertificates}"
+
+
+3. Dosyanın kullanıcısı değiştirilir
+	``` shell 
+	chown jetty /opt/shibboleth-idp/conf/attribute-resolver.xml
+	```
+
+4. Yapılan değişiklikler aktif hale getirilir ve IDP durumu kontrol edilir. 
+	``` shell 
+	systemctl restart jetty.service
+	bash /opt/shibboleth-idp/bin/status.sh
+	```
 
 
 ### eduPersonTargetedID
-Detaylar eklenecek
+1. Check to have the <AttributeDefinition> and the <DataConnector> into the attribute-resolver.xml
+	``` shell 
+	vim /opt/shibboleth-idp/conf/attribute-resolver.xml
+	```
+
+2. Create the custom eduPersonTargetedID.properties file:
+	``` shell 
+	wget https://raw.githubusercontent.com/YETKIM/tutorials/master/HOWTO-Shibboleth/Identity%20Provider/Ubuntu/20.04%20LTS/conf/eduPersonTargetedID.properties -O /opt/shibboleth-idp/conf/attributes/custom/eduPersonTargetedID.properties
+	```
+ 
+3. Yapılan değişiklikler aktif hale getirilir ve IDP durumu kontrol edilir. 
+	``` shell 
+	systemctl restart jetty.service
+	bash /opt/shibboleth-idp/bin/status.sh
+	```
 
 
 ### Attribute Resolution & Attribute Registry
@@ -547,11 +632,8 @@ Detaylar Eklenecek
 - https://wiki.shibboleth.net/confluence/display/IDP4/LDAPConnector
 - https://wiki.shibboleth.net/confluence/display/IDP4/PersistentNameIDGenerationConfiguration
 - https://wiki.shibboleth.net/confluence/display/CONCEPT/NameIdentifiers
-- https://wiki.shibboleth.net/confluence/display/IDP4/SpringConfiguration
-- https://wiki.shibboleth.net/confluence/display/IDP4/ConfigurationFileSummary
-- https://wiki.shibboleth.net/confluence/display/IDP4/LoggingConfiguration
-- https://wiki.shibboleth.net/confluence/display/IDP4/AuditLoggingConfiguration
-- https://wiki.shibboleth.net/confluence/display/IDP4/FTICKSLoggingConfiguration
+- https://wiki.shibboleth.net/confluence/display/IDP4/AttributeResolverConfiguration
+- https://wiki.shibboleth.net/confluence/display/IDP4/AACLI
 
 
 
