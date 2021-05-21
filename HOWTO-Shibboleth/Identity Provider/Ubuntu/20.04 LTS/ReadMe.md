@@ -16,6 +16,17 @@
 	4. [Jetty 9 Web Server Kurulumu](#jetty-9-web-server-kurulumu)
 	5. [Jetty 9 Web Server Yapılandırma](#jetty-9-web-server-yapılandırma)
 	6. [Apache Server Kurulumu](#apache-server-kurulumu)
+4. [Veritabanı Bağlantıları](#veritabanı-bağlantıları)
+	1. [LDAP](#ldap)
+5. [Metadata Konfigürasyonu](#metadata-konfigürasyonu)
+	1. [Persistent NameID](#persistent-nameid)
+	2. [Attribute Resolver](#attribute-resolver)
+	3. [eduPersonTargetedID](#edupersontargetedid)
+	4. [Attribute Resolution & Attribute Registry](#attribute-resolution-&-attribute-registry)
+6. [YETKİM Test Federasyonuna Kayıt](#yetkim-test-federasyonuna-kayıt)
+7. [Kullanışlı Kaynaklar](#kullanışlı-kaynaklar)
+	1. [LDIF](#ldif)
+	
 
 ## Gereksinimler
 
@@ -370,6 +381,177 @@ Paketler arasında zaten Apache 2'yi yüklemiştik. Bu sebepten direk konfigüra
 	Aşağıdaki linkte örnek bir metadata olacaktır. 
 	`https://<HOSTNAME>/idp/shibboleth` 
 
+
+
+## Veritabanı Bağlantıları
+Shibboleth kimlik sağlayıcısı, kullanıcılarını farklı veritabanlarından alabilir. Kimlik sağlayıcısına tanımlamak istediğimiz veritabanına uygun konfigürasyonlar yapılmalıdır.
+
+
+### LDAP 
+1. LDAP konfigürasyonu yapılmadan önce kurulumun gerçekleştirildiği varsayılmaktadır. 
+	[LDAP kurulumu](https://github.com/YETKIM/tutorials/tree/master/miscellaneous/ldap)
+	[Shibboleth LDAP Wiki](https://wiki.shibboleth.net/confluence/display/IDP4/LDAPConnector)
+
+2. IDP makinasından LDAP veritabanına erişip erişemediğimiz kontrol edilmelidir. Bunun için `ldap-utils` paketi yüklenir.
+	``` shell 
+	sudo apt install ldap-utils
+	```
+
+3. Kimlik sağlayıcı sunucusundan (IDP server), LDAP veritabanına bağlanılmaya çalışılır. Aşağıdaki komut satırıdan `idpuser` kullanıcı ile bağlanılmaya çalışılmaktadır. LDAP veritabanına bağlanırken lütfen kendi DN kullanıcınız ile bağlanmaya çalışınız.
+	``` shell 
+	ldapsearch -x -h <LDAP-HOSTNAME-VEYA-IPADRES> -D 'cn=idpuser,ou=system,dc=yetkim,dc=ulakbim,dc=gov,dc=tr' -w 'idpuser'
+	ldapsearch -x -h <LDAP-HOSTNAME-VEYA-IPADRES> -D 'cn=idpuser,ou=system,dc=yetkim,dc=ulakbim,dc=gov,dc=tr' -w 'idpuser' -b 'ou=people,dc=yetkim,dc=ulakbim,dc=gov,dc=tr' '(uid=<USERNAME-USED-IN-THE-LOGIN-FORM>)'
+	ldapsearch -x -h <LDAP-HOSTNAME-VEYA-IPADRES> -D 'cn=idpuser,ou=system,dc=yetkim,dc=ulakbim,dc=gov,dc=tr' -w 'idpuser' -b 'ou=people,dc=yetkim,dc=ulakbim,dc=gov,dc=tr' '(uid=user1)'
+	```	
+	
+	Bizim LDAP kurulumumuzda `user1` örnek kullanıcısı oluşturduğumuzdan `<USERNAME-USED-IN-THE-LOGIN-FORM>` değeri olarak `user1` girilmektedir. Yukarıdaki 
+
+	>dn: uid=user1,ou=people,dc=yetkim,dc=ulakbim,dc=gov,dc=tr
+	objectClass: inetOrgPerson
+	objectClass: eduPerson
+	uid: user1
+	sn: User1
+	givenName: Test
+	cn: Test User1
+	displayName: Test User1
+	preferredLanguage: en
+	mail: test.user1@example.org
+	eduPersonAffiliation: student
+	eduPersonAffiliation: staff
+	eduPersonAffiliation: member
+
+4. LDAP bağlantımızda bir sorun yoksa Shibboleth veritabanı konfigürasyonunda değişiklikler yapılır.
+	``` shell 
+	vim /opt/shibboleth-idp/credentials/secrets.properties
+	```
+
+	>\# Default access to LDAP authn and attribute stores. 
+	idp.authn.LDAP.bindDNCredential              = ###IDPUSER_PASSWORD###
+	idp.attribute.resolver.LDAP.bindDNCredential = %{idp.authn.LDAP.bindDNCredential:undefined}
+
+	``` shell 
+	vim /opt/shibboleth-idp/conf/ldap.properties
+	```
+
+	Dökümandaki bazı değerler aşağıdaki gibi güncellenmelidir. Burada `idp.authn.LDAP.baseDN` olarak kullanıcıların tutulduğu ve IDP Login sayfasında giriş yapacak olan kullanıcıların DN değeri girilir.
+
+		idp.authn.LDAP.authenticator = bindSearchAuthenticator
+		idp.authn.LDAP.ldapURL = ldap://ldap.example.org
+		idp.authn.LDAP.useStartTLS = false
+		# List of attributes to request during authentication
+		idp.authn.LDAP.returnAttributes = passwordExpirationTime,loginGraceRemaining
+		idp.authn.LDAP.baseDN = ou=people,dc=example,dc=org
+		idp.authn.LDAP.subtreeSearch = false
+		idp.authn.LDAP.bindDN = cn=idpuser,ou=system,dc=example,dc=org
+		# The userFilter is used to locate a directory entry to bind against for LDAP authentication.
+		idp.authn.LDAP.userFilter = (uid={user})
+
+		# LDAP attribute configuration, see attribute-resolver.xml
+		# Note, this likely won't apply to the use of legacy V2 resolver configurations
+		idp.attribute.resolver.LDAP.ldapURL             = %{idp.authn.LDAP.ldapURL}
+		idp.attribute.resolver.LDAP.connectTimeout      = %{idp.authn.LDAP.connectTimeout:PT3S}
+		idp.attribute.resolver.LDAP.responseTimeout     = %{idp.authn.LDAP.responseTimeout:PT3S}
+		idp.attribute.resolver.LDAP.baseDN              = %{idp.authn.LDAP.baseDN:undefined}
+		idp.attribute.resolver.LDAP.bindDN              = %{idp.authn.LDAP.bindDN:undefined}
+		idp.attribute.resolver.LDAP.useStartTLS         = %{idp.authn.LDAP.useStartTLS:true}
+		idp.attribute.resolver.LDAP.trustCertificates   = %{idp.authn.LDAP.trustCertificates:undefined}
+		# The searchFilter is is used to find user attributes from an LDAP source
+		idp.attribute.resolver.LDAP.searchFilter        = (uid=$resolutionContext.principal)
+		# List of attributes produced by the Data Connector that should be directly exported as resolved IdPAttributes without requiring any <AttributeDefinition>
+		idp.attribute.resolver.LDAP.exportAttributes    = ### List space-separated of attributes to retrieve directly from the directory ###
+
+
+	Dökümandaki önemli olan bir diğer konfigürasyon değişkeni ise `idp.attribute.resolver.LDAP.exportAttributes` değeridir. Burada dışarıya aktarılacak nitelikler (attribute) girilmelidir. Aşağıdaki örnekte olduğu gibi kullanıcılar IDP üzerinden giriş yaptıklarında `cn` `givenName` `sn` `mail` ve `eduPersonAffiliation` değerleri dışarıya aktarılacaktır. Burada dışarıya aktarılmaktan kasıt Servis sağlayıcılardır (Service Provider).
+
+	>idp.attribute.resolver.LDAP.exportAttributes    = cn givenName sn mail eduPersonAffiliation 
+
+5. Yapılan değişiklikler aktif hale getirilir ve IDP durumu kontrol edilir. 
+	``` shell 
+	systemctl restart jetty.service
+	bash /opt/shibboleth-idp/bin/status.sh
+	```
+
+## Metadata Konfigürasyonu
+
+### Persistent NameID
+- [Shibboleth Persistance NameID](https://wiki.shibboleth.net/confluence/display/IDP4/PersistentNameIDGenerationConfiguration)
+
+Her servis sağlayıcılar, kimlik sağlayıcı(IDP) kullanıcıları için `identifier` yani tanımlayıcı oluşturur. Bu tanımlayıcılar SAML'da `NameID`olarak bilinirler. 
+
+Servis sağlayıcı, kimlik sağlayıcıdan `persistance NameID` talebinde bulunmasa bile varsayılan işlem olarak geçici bir NameID (`transient NameID`) oluşturulur.
+
+1. ROOT kullanıcısı olunur
+	``` shell 
+	sudo su -
+	```
+
+2. `persistent-id` etkinleştirilmesi için `saml-nameid.properties` dosyası düzenlenir. 
+	``` shell 
+	vim /opt/shibboleth-idp/conf/saml-nameid.properties
+	```
+
+	`idp.persistentId.sourceAttribute` değeri nitelik(attribute) ya da virgül ile ayrılmış birden fazla nitelik(attributes) ve tekil(unique) olmalıdır. Bu değer 'session' gibi düşünülebilir. 
+
+	`idp.persistentId.sourceAttribute` değeri KARARLI, KALICI ve YENİDEN ATANAMAZ olmalıdır.	
+
+		# For computed IDs, set a source attribute, and a secret salt in secrets.properties
+		idp.persistentId.sourceAttribute = uid
+		idp.persistentId.encoding = BASE32
+		idp.persistentId.generator = shibboleth.ComputedPersistentIdGenerator
+
+3. `persistent-id` değerinin tekil olmasının yanında tuzlamak gerekir
+	``` shell 
+	openssl rand -base64 36
+	vim /opt/shibboleth-idp/credentials/secrets.properties
+	```
+
+	>idp.persistentId.salt = ### 'openssl rand -base64 36' ###
+
+4. `SAML2PersistentGenerator` aktifleştirilir
+	``` shell 
+	vim /opt/shibboleth-idp/conf/saml-nameid.xml
+	```
+
+	Aşağıdaki satır yorumdan çıkarılmalıdır.
+
+	>\<ref bean="shibboleth.SAML2PersistentGenerator" />
+
+5. Yapılan değişiklikler aktif hale getirilir ve IDP durumu kontrol edilir. 
+	``` shell 
+	systemctl restart jetty.service
+	bash /opt/shibboleth-idp/bin/status.sh
+	```
+
+
+### Attribute Resolver
+Detaylar eklenecek
+
+
+### eduPersonTargetedID
+Detaylar eklenecek
+
+
+### Attribute Resolution & Attribute Registry
+Detaylar eklenecek
+
+
+
+## YETKİM Test Federasyonuna Kayıt
+Detaylar Eklenecek
+
+
+
+## Kullanışlı Kaynaklar
+- https://github.com/ConsortiumGARR/idem-tutorials/blob/master/idem-fedops/HOWTO-Shibboleth/Identity%20Provider/Debian-Ubuntu/HOWTO%20Install%20and%20Configure%20a%20Shibboleth%20IdP%20v4.x%20on%20Debian-Ubuntu%20Linux%20with%20Apache2%20%2B%20Jetty9.md#useful-documentation
+- https://wiki.shibboleth.net/confluence/display/IDP4
+- https://wiki.shibboleth.net/confluence/display/IDP4/LDAPConnector
+- https://wiki.shibboleth.net/confluence/display/IDP4/PersistentNameIDGenerationConfiguration
+- https://wiki.shibboleth.net/confluence/display/CONCEPT/NameIdentifiers
+- https://wiki.shibboleth.net/confluence/display/IDP4/SpringConfiguration
+- https://wiki.shibboleth.net/confluence/display/IDP4/ConfigurationFileSummary
+- https://wiki.shibboleth.net/confluence/display/IDP4/LoggingConfiguration
+- https://wiki.shibboleth.net/confluence/display/IDP4/AuditLoggingConfiguration
+- https://wiki.shibboleth.net/confluence/display/IDP4/FTICKSLoggingConfiguration
 
 
 

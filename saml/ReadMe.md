@@ -16,7 +16,7 @@ YETKİM federasyonuna katılım eğitim dökümanıdır.
 
 
 ## SAML Defined Identifiers
-Aşağıdaki bölümlerde, URI tabanlı tanımlayıcılar (identifiers) açıklanacaktır. Aşağıdaki listede görüldüğü üzere 4 çeşit tanımlayıcılar bulunmaktadır. Bu aşamada bizim için dikkat etmemiz ve bilmemiz gereken tanımlayıcı `Name Identifier Format Identifiers` 'dır. 
+Aşağıdaki bölümlerde, URI tabanlı tanımlayıcılar (identifiers) açıklanacaktır. Aşağıdaki listede görüldüğü üzere 4 çeşit tanımlayıcılar(identifiers) bulunmaktadır. Bu aşamada bizim için dikkat etmemiz ve bilmemiz gereken tanımlayıcı(identifier) `Name Identifier Format Identifiers` 'dır. 
 
 - Action Namespace Identifiers
 - Attribute Name Format Identifiers

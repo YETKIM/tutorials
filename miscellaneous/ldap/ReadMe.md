@@ -483,6 +483,8 @@
 
 
 ## Kullanışlı Kaynaklar
+- https://github.com/ConsortiumGARR/idem-tutorials/blob/master/idem-fedops/miscellaneous/HOWTO%20Install%20and%20Configure%20OpenLDAP%20for%20federated%20access-CentOS.md#requirements
+
 ### LDIF
 - https://docs.oracle.com/cd/E22289_01/html/821-1279/ldapmodify.html
 - https://www.openldap.org/faq/data/cache/756.html
