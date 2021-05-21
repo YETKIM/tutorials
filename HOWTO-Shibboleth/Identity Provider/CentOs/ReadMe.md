@@ -4,6 +4,11 @@
 <img src="https://www.tubitak.gov.tr/sites/default/files/tubitak_logo.png" alt="TÜRKİYE BİLİMSEL VE TEKNOLOJİK ARAŞTIRMA KURUMU" id="logo">
 
 
+https://github.com/ConsortiumGARR/idem-tutorials/blob/master/idem-fedops/HOWTO-Shibboleth/Identity%20Provider/CentOS/HOWTO%20Install%20and%20Configure%20a%20Shibboleth%20IdP%20v4.x%20on%20CentOS%20with%20Apache2%20%2B%20Jetty9.md
+
+
+>BU DÖKÜMAN GÜNCELLENME AŞAMASINDADIR. YUKARIDAKİ LİNK ÜZERİNDEN KURULUM TEST EDİLMİŞTİR.
+
 
 ## İçindekiler
 
@@ -60,12 +65,6 @@
 ## Kurulum Komutları
 
 ### Kurulum Öncesi Paket Gereksinimleri
-
-https://github.com/ConsortiumGARR/idem-tutorials/blob/master/idem-fedops/HOWTO-Shibboleth/Identity%20Provider/CentOS/HOWTO%20Install%20and%20Configure%20a%20Shibboleth%20IdP%20v4.x%20on%20CentOS%20with%20Apache2%20%2B%20Jetty9.md
-
-
->BU DÖKÜMAN GÜNCELLENME AŞAMASINDADIR. YUKARIDAKİ LİNK ÜZERİNDEN KURULUM TEST EDİLMİŞTİR.
-
 
 - Öncelikle kurulum öncesinde sistem güncellenir.
 	```shell

@@ -223,7 +223,7 @@ Shibboleth IDP java tabanlı web uygulaması olduğundan üzerinde çalışabile
 	``` shell 
 	mkdir /opt/jetty
 	cd /opt/jetty
-	wget https://registry.idem.garr.it/idem-conf/shibboleth/IDP4/jetty/start.ini -O /opt/jetty/start.ini
+	wget https://raw.githubusercontent.com/YETKIM/tutorials/master/HOWTO-Shibboleth/Identity%20Provider/Ubuntu/20.04%20LTS/utils/jetty/9/start.ini -O /opt/jetty/start.ini
 	```
 
 6. TMP ve LOG dizinlerinin oluşturulması ve bunların `jetty` kullanıcısına devredilmesi gerekir. Daha önce belirtildiği gibi Jetty server ile alakalı yapılandırma dosyaları `jetty` kullanıcısı tarafından kullanılacaktır. Dolayısıyla ROOT olarak oluşturduğumuz bu dosyaların sahibini `jetty` olarak değiştirmemiz gerekir.
@@ -341,7 +341,7 @@ Paketler arasında zaten Apache 2'yi yüklemiştik. Bu sebepten direk konfigüra
 	Konfigürasyon dosyasında dikkati çeken bir diğer durum ise `SSLCertificateFile` ve `SSLCertificateKeyFile` değerleridir. Apache sertifika olarak `/etc/ssl/certs` ve `/etc/ssl/private` altında sertifika dosyaları istemektedir. Ancak bu aşamada herhangi bir sertifikamız bulunmamaktadır. 
 
 	``` shell 
-	wget https://registry.idem.garr.it/idem-conf/shibboleth/IDP4/apache2/idp.example.org.conf -O /etc/apache2/sites-available/$(hostname -f).conf
+	wget https://raw.githubusercontent.com/YETKIM/tutorials/master/HOWTO-Shibboleth/Identity%20Provider/Ubuntu/20.04%20LTS/utils/apache/idp.example.org.conf -O /etc/apache2/sites-available/$(hostname -f).conf
 	```
 
 4. Apache konfigürasyon dosyasındaki örnek hostname yani `idp.example.org` yerine `<HOSTNAME>` değeri girilir. 
