@@ -196,7 +196,7 @@ Kimlik Sağlayıcı yani IDP, kullanıcıların yetkilendirmesini ve Servis Sağ
 		INFO [net.shibboleth.utilities.java.support.security.BasicKeystoreKeyStrategyTool:166] - No existing versioning property, initializing...
 		SAML EntityID: [https://idp.example.org/idp/shibboleth] ?
 
-		Attribute Scope: [140.63.125] ?
+		Attribute Scope: [idp.example.org] ?
 
 		INFO [net.shibboleth.idp.installer.V4Install:474] - Creating Metadata to /opt/shibboleth-idp/metadata/idp-metadata.xml
 		INFO [net.shibboleth.idp.installer.BuildWar:103] - Rebuilding /opt/shibboleth-idp/war/idp.war, Version 4.1.0
@@ -533,7 +533,7 @@ Servis sağlayıcı, kimlik sağlayıcıdan `persistance NameID` talebinde bulun
 
 Shibboleth için `attribute-resolver` konfigürasyon dosyası `/opt/shibboleth-idp/conf` dizini altında bulunmaktadır. Ancak bu aşamada örnek konfigürasyon indererek kurulama devam edeceğiz. 
 
-Örnek dosyamızda (https://raw.githubusercontent.com/YETKIM/tutorials/master/HOWTO-Shibboleth/Identity%20Provider/Ubuntu/20.04%20LTS/conf/attribute-resolver-v4-idem-sample.xml) görüldüğü üzere `AttributeDefinition` ile nitelikler tanımlanmıştır. `InputDataConnector ref="myLDAP"` olan nitelikler(`attribute`) değerlerini `DataConnector id="myLDAP"` içerisinden almaktadır. 
+Örnek dosyamızda (https://raw.githubusercontent.com/YETKIM/tutorials/master/HOWTO-Shibboleth/Identity%20Provider/Ubuntu/20.04%20LTS/conf/attribute-resolver-v4-yetkim-sample.xml) görüldüğü üzere `AttributeDefinition` ile nitelikler tanımlanmıştır. `InputDataConnector ref="myLDAP"` olan nitelikler(`attribute`) değerlerini `DataConnector id="myLDAP"` içerisinden almaktadır. 
 
 
 	<DataConnector id="myLDAP" xsi:type="LDAPDirectory"
@@ -577,7 +577,7 @@ Diğer `DataConnector` değerinin ise `persistance NameID` değerini almak için
 
 1. Örnek konfigürasyon dosyası indirilir.
 	``` shell 
-	wget https://raw.githubusercontent.com/YETKIM/tutorials/master/HOWTO-Shibboleth/Identity%20Provider/Ubuntu/20.04%20LTS/conf/attribute-resolver-v4-idem-sample.xml -O /opt/shibboleth-idp/conf/attribute-resolver.xml
+	wget https://raw.githubusercontent.com/YETKIM/tutorials/master/HOWTO-Shibboleth/Identity%20Provider/Ubuntu/20.04%20LTS/conf/attribute-resolver-v4-yetkim-sample.xml -O /opt/shibboleth-idp/conf/attribute-resolver.xml
 	```
 
 2. Aşağıdaki satırlar kaldırılır
@@ -684,4 +684,5 @@ Detaylar Eklenecek
 - https://wiki.shibboleth.net/confluence/display/CONCEPT/NameIdentifiers
 - https://wiki.shibboleth.net/confluence/display/IDP4/AttributeResolverConfiguration
 - https://wiki.shibboleth.net/confluence/display/IDP4/AACLI
+- https://wiki.refeds.org/display/STAN/SCHAC
 
