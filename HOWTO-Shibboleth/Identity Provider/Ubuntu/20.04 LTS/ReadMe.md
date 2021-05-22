@@ -4,7 +4,6 @@
 
 
 ## İçindekiler
-
 1. [Gereksinimler](#gereksinimler)
 	1. [Donanım](#donanım)
 	2. [Diğer](#diğer)
@@ -31,14 +30,12 @@
 ## Gereksinimler
 
 ### Donanım
-
  * CPU: 2 Core (64 bit)
  * RAM: 4 GB
  * HDD: 20 GB
  * OS: Ubuntu 20.04 LTS
  
 ### Diğer
-
  * SSL Kimlik bilgileri: HTTPS Sertifikası & Anahtarı
  * Logo:
    * boyut: 80x60 px 
@@ -49,7 +46,6 @@
 
 
 ## Kurulacak Yazılımlar
-
  * ca-certificates
  * ntp
  * vim
@@ -69,7 +65,6 @@
 ## Kurulum Komutları
 
 ### Yazılım Gereksinimlerinin Yüklenmesi
-
 1. Paketlerin yüklenmesi için ROOT kullanıcısı olunur. 
 	``` shell 
 	sudo su -
@@ -103,7 +98,6 @@
 
 
 ### Yapılandırma
-
 1. Gerekli ayarların yapılabilmesi için ROOT kullanıcısı olunur.
 	``` shell 
 	sudo su -
@@ -672,10 +666,88 @@ Diğer `DataConnector` değerinin ise `persistance NameID` değerini almak için
 
 
 ## YETKİM Test Federasyonuna Kayıt
-Detaylar Eklenecek
+
+### SAML TEST 
+1. YETKİM Federasyonuna katılmadan önce aşağıdaki https://samltest.id/ üzerinden Kimlik Sağlayacı (IDP) test edilebilir. Burada ilk hata olarak metadata yüklenememesi alınır. 
+	    ![Test Your IDP seçilir](./img/step-1.png)
+	    ![IDP url girilir](./img/step-2.png)
+	    ![Metadata hatası alınır](./img/step-3.png)
+
+2. IDP test edilebilmesi için metadata'nın yüklenmesi gerekmektedir. https://samltest.id/upload.php üzerinden metadata yüklenebilir.
+	    ![Metadata yüklenir](./img/samltest-upload-step-1.png)
+	    ![Metadata yükleme sonucu](./img/samltest-upload-step-2.png)
+
+3. IDP metadatası SAML TEST ortamına yüklendi ancak kimlik sağlayıcısının da SAML TEST metadatasına güvenebilmesi için metadatanın kimlik sağlayıcıya eklenmesi gerekmektedir. https://samltest.id/download/ linki üzerinden SAML TEST metadatası alınabilir.
+        ![Metadata provider düzenleme](./img/samltest-metadata-provider-step-1.png)
+
+	Dikkat edilecek olunursa IDP test edilecekse SP, SP test edilecekse IDP metadatası `metadata provider` olarak eklenmelidir.
+	
+4. Metadata provider düzenlenmesi gerekir.
+
+    Metadata provider düzenlenmeden önce SAML TEST sertifikası yüklenmesi gerekir.
+    ``` shell
+    vim opt/shibboleth-idp/metadata/saml-test-cert.pem
+    ```
+   
+   Sertifika yüklendikten sonra Metadata provider düzenlenir.
+    ``` shell
+    vim /opt/shibboleth-idp/conf/metadata-providers.xml
+    ```
+    `Metadata Provider` olarak SAML TEST SP metadatası eklenir.
+       
+        <MetadataProvider id="SAMLtest" xsi:type="FileBackedHTTPMetadataProvider"
+           backingFile="%{idp.home}/metadata/SAMLtest.xml"
+           metadataURL="https://samltest.id/saml/sp">
+            <MetadataFilter xsi:type="SignatureValidation" certificateFile="%{idp.home}/metadata/saml-test-cert.pem" />
+            <MetadataFilter xsi:type="RequiredValidUntil" maxValidityInterval="P30D"/>
+        </MetadataProvider>
 
 
+5. Servis tekrardan başlatılarak durumu kontrol edilir.
+	``` shell 
+	systemctl restart jetty.service
+	bash /opt/shibboleth-idp/bin/status.sh
+	```
 
+### YETKİM TEST 
+1. Bir önceki SAML TEST örneğinde olduğu gibi öncelikle YETKİM Federasyonuna metadatanın iletilmesi gerekmektedir. yetkim@ulakbim.gov.tr mail adresinize `https://idp.example.org/idp/shibboleth` olarak mail atmanız gerekmektedir. YETKİM tarafından metadata, federasyona eklenecektir.
+
+2. Metadatanızın federasyona eklenip eklenmediğini kontrol etmeniz gerekmektedir. 
+	- https://yetkim.org.tr/ustveri/ adresinde bulunan http://md.yetkim.org.tr/yetkim-sp-metadata.xml linkinden yani servis sağlayıcıların bulunduğu metadata içerisinde IDP metadatasının olup olmadığını kontrol edilir. 
+
+3. YETKİM sertifikası yüklenmelidir
+    ``` shell
+    wget https://yetkim.org.tr/yetkim.cer -O /opt/shibboleth-idp/metadata/yetkim-federation-cert.pem
+    ```
+   
+4. YETKİM federasyonu metadatası IDP tarafından güncellenmesi gerekir.
+    ``` shell
+    vim /opt/shibboleth-idp/conf/metadata-providers.xml
+    ```
+   
+        <MetadataProvider id="YETKIM-Federation"
+            xsi:type="FileBackedHTTPMetadataProvider"
+            backingFile="%{idp.home}/metadata/yetkim-sp-metadata.xml"
+            metadataURL="http://md.yetkim.org.tr/yetkim-sp-metadata.xml">
+        
+            <MetadataFilter xsi:type="SignatureValidation" requireSignedRoot="true" certificateFile="${idp.home}/metadata/yetkim-federation-cert.pem"/>
+            <MetadataFilter xsi:type="RequiredValidUntil" maxValidityInterval="P10D"/>
+        
+            <MetadataFilter xsi:type="EntityRoleWhiteList">
+               <RetainedRole>md:SPSSODescriptor</RetainedRole>
+            </MetadataFilter>
+        </MetadataProvider>
+        
+5. Servis tekrardan başlatılarak durumu kontrol edilir.
+	``` shell 
+	systemctl restart jetty.service
+	bash /opt/shibboleth-idp/bin/status.sh
+	```
+ 
+6. YETKİM test sayfasından (https://test.yetkim.org.tr/) kimlik sağlayıcısını arayarak test edebilirsiniz. 
+    
+    ![Yetkim Test Sayfası](./img/yetkim-test-page-1.png)
+    
 ## Kullanışlı Kaynaklar
 - https://github.com/ConsortiumGARR/idem-tutorials/blob/master/idem-fedops/HOWTO-Shibboleth/Identity%20Provider/Debian-Ubuntu/HOWTO%20Install%20and%20Configure%20a%20Shibboleth%20IdP%20v4.x%20on%20Debian-Ubuntu%20Linux%20with%20Apache2%20%2B%20Jetty9.md#useful-documentation
 - https://wiki.shibboleth.net/confluence/display/IDP4
@@ -685,4 +757,5 @@ Detaylar Eklenecek
 - https://wiki.shibboleth.net/confluence/display/IDP4/AttributeResolverConfiguration
 - https://wiki.shibboleth.net/confluence/display/IDP4/AACLI
 - https://wiki.refeds.org/display/STAN/SCHAC
+- https://samltest.id/
 

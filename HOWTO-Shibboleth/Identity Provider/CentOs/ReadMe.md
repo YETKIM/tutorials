@@ -5,25 +5,21 @@
 
 
 ## İçindekiler
-
 1. [Gereksinimler](#gereksinimler)
 	1. [Donanım](#donanım)
 	2. [Diğer](#diğer)
 2. [Kurulacak Yazılımlar](#kurulacak-yazılımlar)
-
 3. [Kullanışlı Kaynaklar](#kullanışlı-kaynaklar)
 
 ## Gereksinimler
 
 ### Donanım
-
  * CPU: 2 Core (64 bit)
  * RAM: 4 GB
  * HDD: 20 GB
  * OS: CentOS 7
  
 ### Diğer
-
  * SSL Kimlik bilgileri: HTTPS Sertifikası & Anahtarı
  * Logo:
    * boyut: 80x60 px 
@@ -34,7 +30,6 @@
 
 
 ## Kurulacak Yazılımlar
-
  * ca-certificates
  * ntp
  * vim
