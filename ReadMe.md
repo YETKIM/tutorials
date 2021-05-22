@@ -1,17 +1,30 @@
 <img src="https://www.tubitak.gov.tr/sites/default/files/tubitak_logo.png" alt="TÜRKİYE BİLİMSEL VE TEKNOLOJİK ARAŞTIRMA KURUMU" id="logo">
 
-YETKİM federasyonuna katılım eğitim dökümanıdır.
 
 
 ### YETKİM kaynaklar
 
-- Topluluğumuza üye olarak federasyona dahil olma sürecinde ve sonrasında topluluğumuzdan yardım alabilir ve katkıda bulunabilirsiniz. 
+YETKİM federasyonuna katılım eğitim dökümanıdır. Aşağıdaki linkler üzerinden detaylı bilgi alabilirsiniz. 
 
-	https://topluluk.yetkim.org.tr/
+- https://yetkim.org.tr/
+- https://topluluk.yetkim.org.tr/
+- https://test.yetkim.org.tr/
 
-- Aşağıdaki anketi doldurarak verilecek eğitimlere katkıda bulunabilirsiniz
+---
 
-	https://tr.surveymonkey.com/r/22Z67R7
+## İçindekiler
+1. [Shibboleth](#shibboleth)
+2. [SimpleSamlPhp](#simplesamlphp)
+3. [TEST](#test)
 
+
+#### Shibboleth
+Shibboleth kimlik ve servis sağlayıcı kurulumlarının bulunduğu dosyadır.  
+
+#### SimpleSamlPhp
+SimpleSamlPhp kimlik ve servis sağlayıcı kurulumlarının bulunduğu dosyadır.
+
+#### TEST
+Kimlik ve servis sağlayıcılarınızı test edebileceğiniz dökümandır. 
 
 

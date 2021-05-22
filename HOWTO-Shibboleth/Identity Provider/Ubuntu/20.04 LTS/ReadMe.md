@@ -24,7 +24,9 @@
 	4. [Attribute Registry ile Attribute Resolution Konfigüre Etme](#attribute-registry-ile-attribute-resolution-konfigüre-etme)
 	5. [SAML1 Devre Dışı Bırakma](#saml1-devre-dışı-bırakma)
 6. [YETKİM Test Federasyonuna Kayıt](#yetkim-test-federasyonuna-kayıt)
-7. [Kullanışlı Kaynaklar](#kullanışlı-kaynaklar)
+7. [Olası Hatalar](#olası-hatalar)
+    1. [LDAP insufficient access rights](#ldap-insufficient-access-rights)
+8. [Kullanışlı Kaynaklar](#kullanışlı-kaynaklar)
 	
 
 ## Gereksinimler
@@ -667,7 +669,7 @@ Diğer `DataConnector` değerinin ise `persistance NameID` değerini almak için
 
 ## YETKİM Test Federasyonuna Kayıt
 
-### SAML TEST 
+### SAML TEST 
 1. YETKİM Federasyonuna katılmadan önce aşağıdaki https://samltest.id/ üzerinden Kimlik Sağlayacı (IDP) test edilebilir. Burada ilk hata olarak metadata yüklenememesi alınır. 
 	    ![Test Your IDP seçilir](./img/step-1.png)
 	    ![IDP url girilir](./img/step-2.png)
@@ -743,10 +745,41 @@ Diğer `DataConnector` değerinin ise `persistance NameID` değerini almak için
 	systemctl restart jetty.service
 	bash /opt/shibboleth-idp/bin/status.sh
 	```
+
+6. `Metadata Resolver Service` belirli aralıklarla çalışıp metadata provider dosyasındaki belirtilen federasyon metadatalarını çekmektedir. Ancak bu işlemi beklemeden doğrudan kendimiz `Metadata Resolver Service` çalıştırarak federasyon metadatalarını indirebiliriz.
+    ``` shell 
+    bash /opt/shibboleth-idp/bin/reload-service.sh -id shibboleth.MetadataResolverService
+    ```
+   
+    Bir şekilde `MetadataResolverService` ile federasyonun metadatası çekilemiyorsa bu durumda shibboleth log dosyalarını izleyebiliriz. 
+    ``` shell 
+    tail -f /opt/shibboleth-idp/logs/*
+    ```
  
-6. YETKİM test sayfasından (https://test.yetkim.org.tr/) kimlik sağlayıcısını arayarak test edebilirsiniz. 
+7. YETKİM test sayfasından (https://test.yetkim.org.tr/) kimlik sağlayıcısını arayarak test edebilirsiniz. 
     
     ![Yetkim Test Sayfası](./img/yetkim-test-page-1.png)
+
+
+    
+## Olası Hatalar
+YETKİM Federasyonuna dahil olunduktan sonra karşılaşılabilecek bazı problemler aşağıya eklenmiştir. Tekrardan hatırlatmak gerekirse hataları düzeltme konusunda log kayıtlarına bakmak en iyi çözümdür.
+    
+``` shell 
+tail -f /opt/shibboleth-idp/logs/*
+```
+
+### LDAP insufficient access rights
+Federasyona dahil olduktan sonra LDAP kullanıcısı ile giriş yapmaya kalktığımızda bazen aşağıdaki gibi hata ile karşılaşabiliriz.
+
+![Kimlik Sağlayıcı Giriş Sayfası](./img/error-ldap-access-right-1.png)
+![Kimlik Sağlayıcı Shibboleth Logları](./img/error-ldap-access-right-2.png)
+    
+- Log içerisinde `access right` terimi geçtiğinden öncelikle Shibboleth için oluşturduğumuz kullanıcının izinleri kontrol edilmelidir. IDP makinasından LDAP makinasına `ldapsearch` komutu ile izinleri kontrol edilmelidir. 
+    ``` shell 
+    ldapsearch -x -h <LDAP-HOSTNAME-VEYA-IPADRES> -D 'cn=idpuser,ou=system,dc=yetkim,dc=ulakbim,dc=gov,dc=tr' -w 'idpuser' -b 'ou=people,dc=yetkim,dc=ulakbim,dc=gov,dc=tr' '(uid=user1)' 
+    ```    
+    
     
 ## Kullanışlı Kaynaklar
 - https://github.com/ConsortiumGARR/idem-tutorials/blob/master/idem-fedops/HOWTO-Shibboleth/Identity%20Provider/Debian-Ubuntu/HOWTO%20Install%20and%20Configure%20a%20Shibboleth%20IdP%20v4.x%20on%20Debian-Ubuntu%20Linux%20with%20Apache2%20%2B%20Jetty9.md#useful-documentation

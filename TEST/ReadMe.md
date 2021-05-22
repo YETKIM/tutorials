@@ -25,16 +25,16 @@
 
 ## SAML TEST 
 1. YETKİM Federasyonuna katılmadan önce aşağıdaki https://samltest.id/ üzerinden Kimlik Sağlayacı (IDP) test edilebilir. Burada ilk hata olarak metadata yüklenememesi alınır. 
-	    ![Test Your IDP seçilir](./img/step-1.png)
-	    ![IDP url girilir](./img/step-2.png)
-	    ![Metadata hatası alınır](./img/step-3.png)
+	    ![Test Your IDP seçilir](img/step-1.png)
+	    ![IDP url girilir](img/step-2.png)
+	    ![Metadata hatası alınır](img/step-3.png)
 
 2. IDP test edilebilmesi için metadata'nın yüklenmesi gerekmektedir. https://samltest.id/upload.php üzerinden metadata yüklenebilir.
-	    ![Metadata yüklenir](./img/samltest-upload-step-1.png)
-	    ![Metadata yükleme sonucu](./img/samltest-upload-step-2.png)
+	    ![Metadata yüklenir](img/samltest-upload-step-1.png)
+	    ![Metadata yükleme sonucu](img/samltest-upload-step-2.png)
 
 3. IDP metadatası SAML TEST ortamına yüklendi ancak kimlik sağlayıcısının da SAML TEST metadatasına güvenebilmesi için metadatanın kimlik sağlayıcıya eklenmesi gerekmektedir. https://samltest.id/download/ linki üzerinden SAML TEST metadatası alınabilir.
-        ![Metadata provider düzenleme](./img/samltest-metadata-provider-step-1.png)
+        ![Metadata provider düzenleme](img/samltest-metadata-provider-step-1.png)
 
 	Dikkat edilecek olunursa IDP test edilecekse SP, SP test edilecekse IDP metadatası `metadata provider` olarak eklenmelidir.
 	
