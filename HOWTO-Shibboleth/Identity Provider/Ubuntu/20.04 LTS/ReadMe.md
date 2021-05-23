@@ -113,7 +113,6 @@
 
 	`Status: inactive` gibi bir durum varsa bir sonraki adıma geçilebilir. 
 
-
 3. IDP için `hostname` ayarlanır. 
 	``` shell 
 	vim /etc/hosts
@@ -141,7 +140,6 @@
 	`/etc/environment`dosyasında zaten `PATH` ortam değişkeni bulunmaktadır. Buna ek olarak `JAVA_HOME` değişkeni eklenir.
 
 		JAVA_HOME=/usr/lib/jvm/java-11-amazon-corretto
-
 
 	Değişikliklerin aktif hale getirilmesi için aşağıdaki komutlar çalıştırılır.
 	``` shell 
@@ -254,14 +252,12 @@ Shibboleth IDP java tabanlı web uygulaması olduğundan üzerinde çalışabile
 		JETTY_START_LOG=/var/log/jetty/start.log
 		TMPDIR=/opt/jetty/tmp
 
-
 8. Jetty Server için `service` oluşturulur.
 	``` shell 
 	cd /etc/init.d
 	ln -s /usr/local/src/jetty-src/bin/jetty.sh jetty
 	update-rc.d jetty defaults
 	```
-
 
 9. Servis kontrol edilir ve ayağa kaldırılır. 
 	``` shell 
@@ -350,7 +346,7 @@ Paketler arasında zaten Apache 2'yi yüklemiştik. Bu sebepten direk konfigüra
 	``` shell 
 	wget https://raw.githubusercontent.com/YETKIM/tutorials/master/HOWTO-Shibboleth/Identity%20Provider/Ubuntu/20.04%20LTS/utils/apache/idp.example.org.conf -O /etc/apache2/sites-available/$(hostname -f).conf
 	```
-
+ 
 4. Apache konfigürasyon dosyasındaki örnek hostname yani `idp.example.org` yerine `<HOSTNAME>` değeri girilir. 
 	``` shell 
 	vim /etc/apache2/sites-available/$(hostname -f).conf
@@ -362,7 +358,6 @@ Paketler arasında zaten Apache 2'yi yüklemiştik. Bu sebepten direk konfigüra
 	chmod 400 /etc/ssl/private/$(hostname -f).key
 	chmod 644 /etc/ssl/certs/$(hostname -f).crt
 	```
-
 
 6. Apache için oluşturduğumuz konfigürasyon aktif (`$(hostname -f).conf`) diğer konfigürasyonlar (`000-default.conf` ve `default-ssl`) ise inaktif duruma getirilirler. Aynı zamanda kullanıcılacak olan modlar da aktif hale getirilir.
 	``` shell 
@@ -385,26 +380,25 @@ Shibboleth kimlik sağlayıcısı, kullanıcılarını farklı veritabanlarında
 
 ### LDAP 
 1. LDAP konfigürasyonu yapılmadan önce kurulumun gerçekleştirildiği varsayılmaktadır. 
-	[LDAP kurulumu](https://github.com/YETKIM/tutorials/tree/master/miscellaneous/ldap)
-	[Shibboleth LDAP Wiki](https://wiki.shibboleth.net/confluence/display/IDP4/LDAPConnector)
+	- [YETKİM LDAP kurulumu](https://github.com/YETKIM/tutorials/tree/master/miscellaneous/ldap)
+	- [Shibboleth Wiki](https://wiki.shibboleth.net/confluence/display/IDP4/LDAPConnector)
 
 2. IDP makinasından LDAP veritabanına erişip erişemediğimiz kontrol edilmelidir. Bunun için `ldap-utils` paketi yüklenir.
-	``` shell 
-	sudo apt install ldap-utils
-	```
+    ``` shell 
+    sudo apt install ldap-utils
+    ```
 
 3. Kimlik sağlayıcı sunucusundan (IDP server), LDAP veritabanına bağlanılmaya çalışılır. Aşağıdaki komut satırıdan `idpuser` kullanıcı ile bağlanılmaya çalışılmaktadır. LDAP veritabanına bağlanırken lütfen kendi DN kullanıcınız ile bağlanmaya çalışınız.
-	``` shell 
-	ldapsearch -x -h <LDAP-HOSTNAME-VEYA-IPADRES> -D 'cn=idpuser,ou=system,dc=yetkim,dc=ulakbim,dc=gov,dc=tr' -w 'idpuser'
-	ldapsearch -x -h <LDAP-HOSTNAME-VEYA-IPADRES> -D 'cn=idpuser,ou=system,dc=yetkim,dc=ulakbim,dc=gov,dc=tr' -w 'idpuser' -b 'ou=people,dc=yetkim,dc=ulakbim,dc=gov,dc=tr' '(uid=<USERNAME-USED-IN-THE-LOGIN-FORM>)'
-	ldapsearch -x -h <LDAP-HOSTNAME-VEYA-IPADRES> -D 'cn=idpuser,ou=system,dc=yetkim,dc=ulakbim,dc=gov,dc=tr' -w 'idpuser' -b 'ou=people,dc=yetkim,dc=ulakbim,dc=gov,dc=tr' '(uid=user1)'
-	```	
-	
-	Bizim LDAP kurulumumuzda `user1` örnek kullanıcısı oluşturduğumuzdan `<USERNAME-USED-IN-THE-LOGIN-FORM>` değeri olarak `user1` girilmektedir. Yukarıdaki 
-
-	>dn: uid=user1,ou=people,dc=yetkim,dc=ulakbim,dc=gov,dc=tr
+    ``` shell
+    ldapsearch -x -h <LDAP-HOSTNAME-VEYA-IPADRES> -D 'cn=idpuser,ou=system,dc=yetkim,dc=ulakbim,dc=gov,dc=tr' -w 'idpuser'
+    ldapsearch -x -h <LDAP-HOSTNAME-VEYA-IPADRES> -D 'cn=idpuser,ou=system,dc=yetkim,dc=ulakbim,dc=gov,dc=tr' -w 'idpuser' -b 'ou=people,dc=yetkim,dc=ulakbim,dc=gov,dc=tr' '(uid=<USERNAME-USED-IN-THE-LOGIN-FORM>)'
+    ldapsearch -x -h <LDAP-HOSTNAME-VEYA-IPADRES> -D 'cn=idpuser,ou=system,dc=yetkim,dc=ulakbim,dc=gov,dc=tr' -w 'idpuser' -b 'ou=people,dc=yetkim,dc=ulakbim,dc=gov,dc=tr' '(uid=user1)'
+    ```
+   
+	Bizim LDAP kurulumumuzda `user1` örnek kullanıcısı oluşturduğumuzdan `<USERNAME-USED-IN-THE-LOGIN-FORM>` değeri olarak `user1` girilmektedir. 
+	>dn: uid=user1,ou=people,dc=yetkim,dc=ulakbim,dc=gov,dc=tr 
 	objectClass: inetOrgPerson
-	objectClass: eduPerson
+	objectClass: eduPerson 
 	uid: user1
 	sn: User1
 	givenName: Test
@@ -421,9 +415,9 @@ Shibboleth kimlik sağlayıcısı, kullanıcılarını farklı veritabanlarında
 	vim /opt/shibboleth-idp/credentials/secrets.properties
 	```
 
-	>\# Default access to LDAP authn and attribute stores. 
-	idp.authn.LDAP.bindDNCredential              = ###IDPUSER_PASSWORD###
-	idp.attribute.resolver.LDAP.bindDNCredential = %{idp.authn.LDAP.bindDNCredential:undefined}
+        \# Default access to LDAP authn and attribute stores.
+        idp.authn.LDAP.bindDNCredential              = ###IDPUSER_PASSWORD###
+        idp.attribute.resolver.LDAP.bindDNCredential = %{idp.authn.LDAP.bindDNCredential:undefined}
 
 	``` shell 
 	vim /opt/shibboleth-idp/conf/ldap.properties

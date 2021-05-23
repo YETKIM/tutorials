@@ -46,13 +46,11 @@
 	``` shell 
 	sudo su -
 	```
-
 	
 2. Paketler güncellenir
 	``` shell 
 	apt update && apt-get upgrade -y --no-install-recommends
 	```
-
 
 3. Kurulum için gerekli olan paketler yüklenir
 	```shell
@@ -63,8 +61,6 @@
 	`ldap-utils` ile ldapadd, ldapmodify gibi komutların eklenmesi sağlanır
 
 	LDAP kurulumu sırasında admin kullanıcısı için şifre isteyecektir. LDAP server için admin password `root` olarak ayarlanmıştır. 
-
-
 
 4. Konfigürasyonlarda kullanılmak amacıyla için `hostname` ayarlanır. 
 	``` shell 
@@ -87,7 +83,6 @@
 
 
 
-
 ## LDAP Yapılandırma
 
 ### LDAP Kurulumu
@@ -98,7 +93,6 @@
 	sudo systemctl status slapd
 	```
 
-
 2. LDAP ayağa kalktığını gördükten sonra LDAP'ta hangi veritabanlarının (database) olduğuna bakılır. Buna bakılmasının sebebi farklı işletim sistemlerinden farklı `olcDatabase` bulunmaktadır. Örneğin CentOS 7'ye bakacak olursanız `dn: olcDatabase={2}hdb,cn=config` olarak gelirken Ubuntu 20.04 LTS'de `dn: olcDatabase={1}mdb,cn=config` gözükmektedir. Yani biri `HDB` kullanırken diğeri `MDB` kullanmaktadır.
 
 	İşletim sisteminin hangi veritabanını kullandığını görmek için aşağıdaki komut çağrılır. Hangi veritabanının kullanıldığını bilmeden devam edilmesi durumunda `ldap_modify: No such object (32)` gibi bir hata ile karşılaşılabilir. 
@@ -107,14 +101,14 @@
 	sudo ldapsearch -H ldapi:/// -Y EXTERNAL -b "cn=config" -LLL -Q "olcDatabase=*" dn
 	```
 
-	Konuylu alakalı detaylı link -> https://www.openldap.org/faq/data/cache/756.html
+    ![LDAP olcDatabase](./img/ldap-os-db-1.png)
 
+	Konuylu alakalı detaylı link -> https://www.openldap.org/faq/data/cache/756.html
 
 3. LDAP işlemlerimizi yapabileceğimiz yani organizasyon vs gibi şeyler oluşturmak için bir dizin oluşturulur. 
 	```shell
 	sudo mkdir /etc/ldap/scratch
 	```
-
 
 4. ROOT DN oluşturulması ve root şifresi değiştirilmesi için `/etc/ldap/scratch/db.ldif` dosyası oluşturulur. Oluşturacağımız `/etc/ldap/db.ldif` dosyasında, `<PASSWORD>` alanına  `sudo slappasswd` ile aldığımız değer konulmalıdır.
 
@@ -143,7 +137,6 @@
 		replace: olcRootPW
 		olcRootPW: <PASSWORD>
 
-
 5. ROOT DB oluşturulur. 
 	```shell
 	sudo ldapmodify -Y EXTERNAL -H ldapi:/// -f /etc/ldap/scratch/db.ldif
@@ -151,12 +144,10 @@
 
 	İşlem sonucunda `modifying entry "olcDatabase={1}mdb,cn=config"` gibi sonuçlar çıkmalıdır. Aksi halde dökümanda belirttiğimiz ROOT kullanıcısı ve DN güncellenmeyecektir.
 
-
 6. Sertifika oluşturulması 
 	```shell
 	sudo openssl req -newkey rsa:3072 -x509 -nodes -out /etc/ldap/$(hostname -f).crt -keyout /etc/ldap/$(hostname -f).key -days 1095 -subj "/CN=$(hostname -f)"
 	```
-
 
 7. LDAP için SSL enable edilir.
 	```shell
@@ -166,7 +157,6 @@
 
 		#TLS_CACERTDIR  /etc/ldap/certs
 		TLS_CACERT      /etc/ldap/ldap.example.org.crt
-
 
 8. LDAP servisi tekrardan başlatılır
 	```shell
@@ -185,7 +175,6 @@
 
 	Yukarıdaki komut `sudo` olmadan çağrıldığında `result: 32 No such object` gibi bir çıktı verecektir. Bunun anlamı `gidNumber=1000+uidNumber=1000,cn=peercred,cn=external,cn=auth` kullanıcısı için izin olmadığını gösterir.
 
-
 2. `slapcat` komutu ile 
 	```shell
 	sudo slapcat
@@ -202,7 +191,6 @@
 	sudo ldapadd -Y EXTERNAL -H ldapi:/// -f /etc/ldap/schema/openldap.ldif
 	sudo ldapadd -Y EXTERNAL -H ldapi:/// -f /etc/ldap/schema/dyngroup.ldif
 	```
-
 
 2. LDAP için oluşturduğumuz sertifikaların dizinleri ayarlanır
 	```shell
@@ -222,12 +210,11 @@
 		replace: olcTLSCertificateKeyFile
 		olcTLSCertificateKeyFile: /etc/ldap/ldap.example.org.key
 
-
+    LDAP üzerinde aktifleştirmek için `ldapmodify` komutu kullanılır. 
 	```shell	
 	sudo ldapmodify -Y EXTERNAL -H ldapi:/// -f /etc/ldap/olcTLS.ldif
 	```
-
-
+	
 3. Organizasyon ve ROOT kullanıcısı oluşturulur
 	```shell	
 	sudo vim /etc/ldap/scratch/add_org.ldif
@@ -243,23 +230,22 @@
 	sudo ldapadd -W -D "cn=root,dc=yetkim,dc=ulakbim,dc=gov,dc=tr" -H ldapi:/// -f /etc/ldap/scratch/add_org.ldif
 	```
 
-
 4. Organizasyon birimleri `ou` üretilir. `People` , `Groups` ve `System` olarak 3 organize birimi üretilir.
 	```shell	
 	sudo vim /etc/ldap/scratch/add_ou.ldif
 	```
 
-		dn: ou=people,dc=example,dc=org
+		dn: ou=people,dc=yetkim,dc=ulakbim,dc=gov,dc=tr
 		objectClass: organizationalUnit
 		objectClass: top
 		ou: People
 
-		dn: ou=groups,dc=example,dc=org
+		dn: ou=groups,dc=yetkim,dc=ulakbim,dc=gov,dc=tr
 		objectClass: organizationalUnit
 		objectClass: top
 		ou: Groups
 
-		dn: ou=system,dc=example,dc=org
+		dn: ou=system,dc=yetkim,dc=ulakbim,dc=gov,dc=tr
 		objectClass: organizationalUnit
 		objectClass: top
 		ou: System
@@ -273,8 +259,7 @@
 	```shell	
 	sudo ldapsearch -x -b "dc=yetkim,dc=ulakbim,dc=gov,dc=tr"
 	```
-
-
+ 
 5. Kullanıcı işlemleri yapabileceğimiz yani yeni kullanıcılar ekleyip çıkarabileceğimiz `idpuser` adında yönetici kullanıcısı oluşturmaya sıra geldi. Tabi böyle bir kullanıcının bir şifresi olması gerekmektedir. `slappasswd` ile oluşturduğumuz şifreyi `<INSERT-HERE-IDPUSER-PW>` yerine koymamız gerekiyor. 
 	```shell	
 	sudo slappasswd
@@ -290,13 +275,11 @@
 		givenName: idpuser
 		userPassword: <INSERT-HERE-IDPUSER-PW>
 
-
 	Her zamanki gibi `.ldif` dosyası ile veritabanı güncellenir. `ldapsearch` ile eklediğimiz kullanıcıyı görüntüleyebiliriz.
 	```shell
 	sudo ldapadd -W -D "cn=root,dc=yetkim,dc=ulakbim,dc=gov,dc=tr" -H ldapi:/// -f /etc/ldap/scratch/add_idpuser.ldif
-	sudo ldapsearch -x -b "ou=system,dc=yetkim,dc=ulakbim,dc=gov,dc=tr"
+	sudo ldapsearch -x -D "cn=root,dc=yetkim,dc=ulakbim,dc=gov,dc=tr" -w <ROOT-PASSWORD> -b "ou=system,dc=yetkim,dc=ulakbim,dc=gov,dc=tr"
 	```
-
 
 6. `idpuser` kullanıcısı oluşturduk ama bu kullanıcıya yetkiler vermedik. Yetkilendirmeyi verebilmek için konfigürasyon veritabanına bakmamız gerekir.
 	```shell
@@ -359,7 +342,6 @@
 		olcAccess: {3}to dn.base="cn=Subschema" by * read
 		olcAccess: {4}to * by dn.exact="cn=idpuser,ou=system,dc=yetkim,dc=ulakbim,dc=gov,dc=tr" read by anonymous auth by self read
 
-
 	Değişiklikler kaydedilerek kontrolü gerçekleştirilir.
 	```shell
 	sudo ldapmodify -Y EXTERNAL -H ldapi:/// -f /etc/ldap/scratch/olcAcl.ldif
@@ -372,7 +354,6 @@
 	sudo ldapsearch -x -D 'cn=idpuser,ou=system,dc=yetkim,dc=ulakbim,dc=gov,dc=tr' -W -b "ou=people,dc=yetkim,dc=ulakbim,dc=gov,dc=tr"
 	```
 
-
 7. Gerekli şemaların yüklenmesi gerekir(eduPerson, SCHAC, Password Policy) Şemalar yüklendikten sonra `ldapsearch` komutu ile kontrol edilir.
 	```shell
 	cd /etc/ldap/schema
@@ -383,44 +364,7 @@
 	sudo ldapsearch -Y EXTERNAL -H ldapi:/// -b cn=schema,cn=config dn
 	```
 
-
-8. Test kullanıcılarını `People` içersine oluşturulabilir.
-	```shell
-	sudo vim /etc/ldap/scratch/user1.ldif
-	```
-
-		# USERNAME: user1 , PASSWORD: user1
-		# Generate a new password with: sudo slappasswd -s <newPassword>
-		dn: uid=user1,ou=people,dc=yetkim,dc=ulakbim,dc=gov,dc=tr
-		changetype: add
-		objectClass: inetOrgPerson
-		objectClass: eduPerson
-		uid: user1
-		sn: User1
-		givenName: Test
-		cn: Test User1
-		displayName: Test User1
-		preferredLanguage: en
-		userPassword: {SSHA}8zAA11p1eJpbN7kQIzlzoGxL9QhSymBY
-		mail: test.user1@example.org
-		eduPersonAffiliation: student
-		eduPersonAffiliation: staff
-		eduPersonAffiliation: member
-
-
-	```shell
-	sudo ldapadd -D "cn=root,dc=yetkim,dc=ulakbim,dc=gov,dc=tr" -W -f /etc/ldap/scratch/user1.ldif
-	```
-
-	Eklediğimiz yeni kullanıcı `idpuser` kullanıcı tarafından test edilir. Burada `idpuser` kullanıcı şifresi girilmesi gerekir.
-	```shell
-	sudo ldapsearch -x -D 'cn=idpuser,ou=system,dc=yetkim,dc=ulakbim,dc=gov,dc=tr' -W -b "uid=user1,ou=people,dc=yetkim,dc=ulakbim,dc=gov,dc=tr"
-	```
-
-
-9. `memberof` konfigürasyonu eklenmesi çalışma durumundadır. 
-
-	`memberof` konfigürasyonun eklenmesi
+8. `memberof` konfigürasyonu eklenmelidir. 
 
 	```shell
 	sudo vim /etc/ldap/scratch/add_memberof.ldif
@@ -429,7 +373,7 @@
 		dn: cn=module,cn=config
 		cn: module
 		objectClass: olcModuleList
-		olcModuleLoad: memberof
+		olcModuleLoad: memberof.la
 		olcModulePath: /usr/lib/ldap/
 
 		dn: olcOverlay={0}memberof,olcDatabase={1}mdb,cn=config
@@ -447,8 +391,18 @@
 	```shell
 	sudo ldapadd -Q -Y EXTERNAL -H ldapi:/// -f /etc/ldap/scratch/add_memberof.ldif
 	```
-
-	Burada `refint{1}` modulu eklenir. Ancak bu aşamada şuan için `ldap_add: Undefined attribute type (17)` hatası almaktadır. 
+    
+    `memberof` konfigürasyonun eklenip eklenmediğini görüntülemek için aşağıdaki komut satırı çalıştırılır. Eğer bir önceki `ldapadd` komutunu birden fazla çağırdıysak `{0}memberof` veya `{1}memberof` gibi değerler oluşacaktır      
+    ```shell
+    sudo ldapsearch -H ldapi:/// -Y EXTERNAL -b "cn=config" -LLL -Q "olcOverlay=*" dn
+    ```
+   
+	Burada `refint{1}` modulu eklenir. Modul eklenmeden önce doğru dizinin bulunması gerekir.  
+	```shell
+    sudo find / -iname refint.la
+    ```
+    Ubuntu 20.04 LTS için modulün bulunduğu dizin `/usr/lib/ldap/refint.la` dir. 
+	 
 	```shell
 	sudo vim /etc/ldap/scratch/add_refint1.ldif
 	```
@@ -457,33 +411,82 @@
 		add: olcmoduleload
 		olcmoduleload: refint 
 
-
 	```shell
-	sudo ldapadd -Q -Y EXTERNAL -H ldapi:/// -f /etc/ldap/scratch/add_refint1.ldif
+    sudo ldapmodify -Q -Y EXTERNAL -H ldapi:/// -f /etc/ldap/scratch/add_refint1.ldif
 	```
-
-
+	
 	Burada `refint{2}` modulu eklenir.
 	```shell
 	sudo vim /etc/ldap/scratch/add_refint2.ldif
 	```
 
-		dn: olcOverlay={1}refint,olcDatabase={1}mdb,cn=config
-		objectClass: olcConfig
-		objectClass: olcOverlayConfig
-		objectClass: olcRefintConfig
-		objectClass: top
-		olcOverlay: {1}refint
-		olcRefintAttribute: memberof member manager owner
+        dn: olcOverlay={1}refint,olcDatabase={1}mdb,cn=config
+        objectClass: olcConfig
+        objectClass: olcOverlayConfig
+        objectClass: olcRefintConfig
+        objectClass: top
+        olcOverlay: {1}refint
+        olcRefintAttribute: memberof member manager owner
 
-
+    **UYARI - 1**
+    
+    Bazı dökümanlarda LDAP konfigürasyonu yapılırken `add_refint1` ve `add_refint2` dosyalarını tek bir dosyada birleştirip `ldapmodify` komutu kullanılmıştır. Bu sebepler modul yüklenirken yani `add_refint1.ldif` çalıştırılırken `ldapmodify` kullanıldığına, `add_refint2.ldif` çalıştırılırken ise yeni bir entry ekleneceğinden `ldapadd` komutu çalıştırıldığına ***dikkat ediniz***. 
 	```shell
 	sudo ldapadd -Q -Y EXTERNAL -H ldapi:/// -f /etc/ldap/scratch/add_refint2.ldif
 	```
+ 
+    **UYARI - 2**
+    
+    `slapd` servisi ile ldap tekrar başlatıldığında modul ile alakalı bir hata alınıp servisin başlatılamaması durumunda `/etc/ldap/slapd.d/cn=config` dizinini kontrol ederek eklediğiniz modulleri görebilirsiniz. Hata sebebi olan modul bu dizinden silinerek kaldırılabilir.
+	
+	**KONTROL!**
+	
+	`olcOverlay={1}refint` olan dn oluşturulduğunu aşağıdaki komut ile kontrol edilebilir. 
+    ```shell
+    sudo ldapsearch -H ldapi:/// -Y EXTERNAL -b "cn=config" -LLL -Q "olcOverlay=*" dn
+    ```
+
+    ![LDAP memberof](./img/ldap-os-memberof-1.png)
+
+9. Test kullanıcılarını `People` içersine oluşturulabilir.
+	```shell
+	sudo vim /etc/ldap/scratch/user1.ldif
+	```
+
+        # USERNAME: user1 , PASSWORD: user1
+        # Generate a new password with: sudo slappasswd -s <newPassword>
+        dn: uid=user1,ou=people,dc=yetkim,dc=ulakbim,dc=gov,dc=tr
+        changetype: add
+        objectClass: inetOrgPerson
+        objectClass: eduPerson
+        uid: user1
+        sn: User1
+        givenName: Test
+        cn: Test User1
+        displayName: Test User1
+        preferredLanguage: en
+        userPassword: {SSHA}8zAA11p1eJpbN7kQIzlzoGxL9QhSymBY
+        mail: test.user1@example.org
+        eduPersonAffiliation: student
+        eduPersonAffiliation: staff
+        eduPersonAffiliation: member
+
+	```shell
+	sudo ldapadd -D "cn=root,dc=yetkim,dc=ulakbim,dc=gov,dc=tr" -W -f /etc/ldap/scratch/user1.ldif
+	```
+
+	Eklediğimiz yeni kullanıcı `idpuser` kullanıcı tarafından test edilir. Burada `idpuser` kullanıcı şifresi girilmesi gerekir.
+	```shell
+	sudo ldapsearch -x -D 'cn=idpuser,ou=system,dc=yetkim,dc=ulakbim,dc=gov,dc=tr' -W -b "uid=user1,ou=people,dc=yetkim,dc=ulakbim,dc=gov,dc=tr"
+	```
+
+
 
 
 ## Kullanışlı Kaynaklar
 - https://github.com/ConsortiumGARR/idem-tutorials/blob/master/idem-fedops/miscellaneous/HOWTO%20Install%20and%20Configure%20OpenLDAP%20for%20federated%20access-CentOS.md#requirements
+- https://ubuntu.com/server/docs/service-ldap
+- https://www.openldap.org/faq/data/cache/756.html
 
 ### LDIF
 - https://docs.oracle.com/cd/E22289_01/html/821-1279/ldapmodify.html
