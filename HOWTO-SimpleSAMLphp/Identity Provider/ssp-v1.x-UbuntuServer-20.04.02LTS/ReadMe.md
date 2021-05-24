@@ -335,7 +335,18 @@ Kurulumda, kurumun kimlik doğrulama için LDAP kullandığı varsayımı yapıl
                    ],
                ],
            ],
-
+    
+           // IPHint: Ev Kurumunun (Home Organization) ip blokları, hem ipv4 hem de ipv6,
+           // DomainHint: Ev Kurumun alan adları. Kurumun birden fazla alan adı olabilir.
+           // örn. ODTÜ için 'metu.edu.tr' ve 'odtu.edu.tr' gibi.
+           // GeolocationHint: Kurumun, örneğin rektörlüğünün ya da yerleşke merkezlerinin
+           // koordinat(lar)ı olabilir: 'geo:enlem,boylam' şeklinde olmalı.
+           'DiscoHints' => [
+               'IPHint' => ['130.59.0.0/16', '2001:620::0/96'],
+               'DomainHint' => ['universite.edu.tr', 'universite-diger-alan-adi.edu.tr'],
+               'GeolocationHint' => ['geo:47.37328,8.531126', 'geo:19.34343,12.342514'],
+           ],
+	   
            // Örn: ABC Üniversitesi
            // Örn: ABC University
            'OrganizationName' => [
