@@ -22,7 +22,8 @@
 	2. [Attribute Resolver](#attribute-resolver)
 	3. [eduPersonTargetedID](#edupersontargetedid)
 	4. [Attribute Registry ile Attribute Resolution Konfigüre Etme](#attribute-registry-ile-attribute-resolution-konfigüre-etme)
-	5. [SAML1 Devre Dışı Bırakma](#saml1-devre-dışı-bırakma)
+	5. [Attribute Filter](#attribute-filter)
+	6. [SAML1 Devre Dışı Bırakma](#saml1-devre-dışı-bırakma)
 6. [YETKİM Test Federasyonuna Kayıt](#yetkim-test-federasyonuna-kayıt)
 7. [Olası Hatalar](#olası-hatalar)
     1. [LDAP insufficient access rights](#ldap-insufficient-access-rights)
@@ -625,6 +626,18 @@ Diğer `DataConnector` değerinin ise `persistance NameID` değerini almak için
 		    <import resource="schac.xml" />
 		</beans>
 
+### Attribute Filter
+Nitelik filtresi (attribute filter) ile politikada belirlenen nitelik yayınlama sağlanır.
+1. YETKİM'e uygun politika dosyası indirilir.
+    ``` shell 
+    wget https://raw.githubusercontent.com/YETKIM/tutorials/master/HOWTO-Shibboleth/Identity%20Provider/Ubuntu/20.04%20LTS/conf/attribute-filter-v4-yetkim.xml -O /opt/shibboleth-idp/conf/attribute-filter.xml
+    ```
+   
+2. Yapılan değişiklikler aktif hale getirilir ve IDP durumu kontrol edilir. 
+	``` shell 
+	systemctl restart jetty.service
+	bash /opt/shibboleth-idp/bin/status.sh
+	```  
 
 ### SAML1 Devre Dışı Bırakma
 1. IDP metadata içerisindeki SAML1 protokolleri kaldırılır.

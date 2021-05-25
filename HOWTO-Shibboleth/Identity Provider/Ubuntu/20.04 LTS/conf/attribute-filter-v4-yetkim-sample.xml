@@ -1,0 +1,21 @@
+
+<!--
+    /opt/shibboleth-idp/conf/attribute-filter.xml dosyasına eklenmelidir
+    <AttributeFilterPolicyGroup> elemanı kapatılmadan hemen önce eklenebilir
+
+    Belirlenen nitelikler ilgili SP için gönderilecektir
+  -->
+<AttributeFilterPolicy id="yetkim-filter">
+    <PolicyRequirementRule xsi:type="Requester" value="### SP-ENTITYID ###" />
+
+    <AttributeRule attributeID="mail" permitAny="true" />
+    <AttributeRule attributeID="eduPersonPrincipalName" permitAny="true" />
+    <AttributeRule attributeID="displayName" permitAny="true" />
+    <AttributeRule attributeID="sn" permitAny="true" />
+    <AttributeRule attributeID="givenName" permitAny="true" />
+    <AttributeRule attributeID="eduPersonEntitlement" permitAny="true" />
+    <AttributeRule attributeID="cn" permitAny="true" />
+    <AttributeRule attributeID="eduPersonOrgDN" permitAny="true" />
+    <AttributeRule attributeID="title" permitAny="true" />
+
+</AttributeFilterPolicy>
