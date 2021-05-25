@@ -451,7 +451,7 @@ Shibboleth kimlik sağlayıcısı, kullanıcılarını farklı veritabanlarında
 		idp.attribute.resolver.LDAP.exportAttributes    = ### List space-separated of attributes to retrieve directly from the directory ###
 
 
-	Dökümandaki önemli olan bir diğer konfigürasyon değişkeni ise `idp.attribute.resolver.LDAP.exportAttributes` değeridir. Burada dışarıya aktarılacak nitelikler (attribute) girilmelidir. Aşağıdaki örnekte olduğu gibi kullanıcılar IDP üzerinden giriş yaptıklarında `cn` `givenName` `sn` `mail` ve `eduPersonAffiliation` değerleri dışarıya aktarılacaktır. Burada dışarıya aktarılmaktan kasıt Servis sağlayıcılardır (Service Provider).
+	Dökümandaki önemli olan bir diğer konfigürasyon değişkeni ise `idp.attribute.resolver.LDAP.exportAttributes` değeridir. Burada dışarıya aktarılacak nitelikler (attribute) girilmelidir. Aşağıdaki örnekte olduğu gibi kullanıcılar IDP üzerinden giriş yaptıklarında `cn` `givenName` `sn` `mail` ve `eduPersonAffiliation` değerleri dışarıya aktarılacaktır.
 
 	>idp.attribute.resolver.LDAP.exportAttributes    = cn givenName sn mail eduPersonAffiliation 
 
@@ -517,9 +517,9 @@ Servis sağlayıcı, kimlik sağlayıcıdan `persistance NameID` talebinde bulun
 - https://wiki.shibboleth.net/confluence/display/IDP4/AttributeResolverConfiguration
 - https://wiki.shibboleth.net/confluence/display/IDP4/AACLI
 
-Öznitelik çözümlemesi, özne kimlik doğrulaması hakkında veri toplama işlemidir ve bu işlem öznitelik çözümleyici (`attribute resolver`) ile gerçekleştirilmektedir. Politikaları uygulamak ve ardından bu bilgilerin bir alt kümesini bağlı taraflara sağlamak için kullanılırlar. 
+Nitelik çözümlemesi, özne kimlik doğrulaması hakkında veri toplama işlemidir ve bu işlem nitelik çözümleyici (`attribute resolver`) ile gerçekleştirilmektedir. Politikaları uygulamak ve ardından bu bilgilerin bir alt kümesini bağlı taraflara sağlamak için kullanılırlar. 
 
-Çözümleyici hizmeti esasen bir meta dizindir. Meta dizin denilmesinin sebebi bilgi tutmamasıdır, ancak çeşitli kaynaklardan bilgi toplayan, bunları birleştiren, dönüştüren ve `IdPAttribute` nesnelerinin son bir koleksiyonunu oluşturan öznitelik tanımlarının (`attribute definition`) ve veri bağlayıcılarının yönlendirilmiş bir grafiğini içerir.
+Çözümleyici hizmeti esasen bir meta dizindir. Meta dizin denilmesinin sebebi bilgi tutmamasıdır, ancak çeşitli kaynaklardan bilgi toplayan, bunları birleştiren, dönüştüren ve `IdPAttribute` nesnelerinin son bir koleksiyonunu oluşturan nitelik tanımlarının (`attribute definition`) ve veri bağlayıcılarının yönlendirilmiş bir grafiğini içerir.
 
 Shibboleth için `attribute-resolver` konfigürasyon dosyası `/opt/shibboleth-idp/conf` dizini altında bulunmaktadır. Ancak bu aşamada örnek konfigürasyon indererek kurulama devam edeceğiz. 
 
@@ -662,51 +662,8 @@ Diğer `DataConnector` değerinin ise `persistance NameID` değerini almak için
 
 
 ## YETKİM Test Federasyonuna Kayıt
-
-### SAML TEST 
-1. YETKİM Federasyonuna katılmadan önce aşağıdaki https://samltest.id/ üzerinden Kimlik Sağlayacı (IDP) test edilebilir. Burada ilk hata olarak metadata yüklenememesi alınır. 
-	    ![Test Your IDP seçilir](./img/step-1.png)
-	    ![IDP url girilir](./img/step-2.png)
-	    ![Metadata hatası alınır](./img/step-3.png)
-
-2. IDP test edilebilmesi için metadata'nın yüklenmesi gerekmektedir. https://samltest.id/upload.php üzerinden metadata yüklenebilir.
-	    ![Metadata yüklenir](./img/samltest-upload-step-1.png)
-	    ![Metadata yükleme sonucu](./img/samltest-upload-step-2.png)
-
-3. IDP metadatası SAML TEST ortamına yüklendi ancak kimlik sağlayıcısının da SAML TEST metadatasına güvenebilmesi için metadatanın kimlik sağlayıcıya eklenmesi gerekmektedir. https://samltest.id/download/ linki üzerinden SAML TEST metadatası alınabilir.
-        ![Metadata provider düzenleme](./img/samltest-metadata-provider-step-1.png)
-
-	Dikkat edilecek olunursa IDP test edilecekse SP, SP test edilecekse IDP metadatası `metadata provider` olarak eklenmelidir.
-	
-4. Metadata provider düzenlenmesi gerekir.
-
-    Metadata provider düzenlenmeden önce SAML TEST sertifikası yüklenmesi gerekir.
-    ``` shell
-    vim opt/shibboleth-idp/metadata/saml-test-cert.pem
-    ```
-   
-   Sertifika yüklendikten sonra Metadata provider düzenlenir.
-    ``` shell
-    vim /opt/shibboleth-idp/conf/metadata-providers.xml
-    ```
-    `Metadata Provider` olarak SAML TEST SP metadatası eklenir.
-       
-        <MetadataProvider id="SAMLtest" xsi:type="FileBackedHTTPMetadataProvider"
-           backingFile="%{idp.home}/metadata/SAMLtest.xml"
-           metadataURL="https://samltest.id/saml/sp">
-            <MetadataFilter xsi:type="SignatureValidation" certificateFile="%{idp.home}/metadata/saml-test-cert.pem" />
-            <MetadataFilter xsi:type="RequiredValidUntil" maxValidityInterval="P30D"/>
-        </MetadataProvider>
-
-
-5. Servis tekrardan başlatılarak durumu kontrol edilir.
-	``` shell 
-	systemctl restart jetty.service
-	bash /opt/shibboleth-idp/bin/status.sh
-	```
-
-### YETKİM TEST 
-1. Bir önceki SAML TEST örneğinde olduğu gibi öncelikle YETKİM Federasyonuna metadatanın iletilmesi gerekmektedir. yetkim@ulakbim.gov.tr mail adresinize `https://idp.example.org/idp/shibboleth` olarak mail atmanız gerekmektedir. YETKİM tarafından metadata, federasyona eklenecektir.
+ 
+1. Öncelikle YETKİM Federasyonuna metadatanın iletilmesi gerekmektedir. yetkim@ulakbim.gov.tr mail adresinize `https://idp.example.org/idp/shibboleth` olarak mail atmanız gerekmektedir. YETKİM tarafından metadata, federasyona eklenecektir.
 
 2. Metadatanızın federasyona eklenip eklenmediğini kontrol etmeniz gerekmektedir. 
 	- https://yetkim.org.tr/ustveri/ adresinde bulunan http://md.yetkim.org.tr/yetkim-sp-metadata.xml linkinden yani servis sağlayıcıların bulunduğu metadata içerisinde IDP metadatasının olup olmadığını kontrol edilir. 
