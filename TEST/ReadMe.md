@@ -68,4 +68,5 @@
     
 ## Kullanışlı Kaynaklar
 - https://samltest.id/
+- https://technical.edugain.org/validator2
 
