@@ -33,7 +33,7 @@
     </AttributeFilterPolicy>
 
     <!-- YETKIM'e dahil servislerin gerekli(required) nitelikleri icin -->
-    <AttributeFilterPolicy id="releaseToIdemRequired">
+    <AttributeFilterPolicy id="releaseToYetkimRequired">
         <PolicyRequirementRule xsi:type="RegistrationAuthority" registrars="https://yetkim.org.tr/"/>
 
         <AttributeRule attributeID="eduPersonTargetedID">

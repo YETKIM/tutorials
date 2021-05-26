@@ -678,15 +678,12 @@ Nitelik filtresi (attribute filter) ile politikada belirlenen nitelik yayınlama
  
 1. Öncelikle YETKİM Federasyonuna metadatanın iletilmesi gerekmektedir. yetkim@ulakbim.gov.tr mail adresinize `https://idp.example.org/idp/shibboleth` olarak mail atmanız gerekmektedir. YETKİM tarafından metadata, federasyona eklenecektir.
 
-2. Metadatanızın federasyona eklenip eklenmediğini kontrol etmeniz gerekmektedir. 
-	- https://yetkim.org.tr/ustveri/ adresinde bulunan http://md.yetkim.org.tr/yetkim-sp-metadata.xml linkinden yani servis sağlayıcıların bulunduğu metadata içerisinde IDP metadatasının olup olmadığını kontrol edilir. 
-
-3. YETKİM sertifikası yüklenmelidir
+2. YETKİM sertifikası yüklenmelidir
     ``` shell
     wget https://yetkim.org.tr/yetkim.cer -O /opt/shibboleth-idp/metadata/yetkim-federation-cert.pem
     ```
    
-4. YETKİM federasyonu metadatası IDP tarafından güncellenmesi gerekir.
+3. YETKİM federasyonu metadatası IDP tarafından güncellenmesi gerekir.
     ``` shell
     vim /opt/shibboleth-idp/conf/metadata-providers.xml
     ```
@@ -726,13 +723,13 @@ Nitelik filtresi (attribute filter) ile politikada belirlenen nitelik yayınlama
     ***NOT :*** `metadata-providers.xml` içerisine 2 metadata provider tanımlanmaktadır. Bunlardan biri Türkiye yani YETKİM federasyonuna bağlı servis sağlayıcılar olup diğeri EduGAIN servisleri içindir. 
     
     
-5. Servis tekrardan başlatılarak durumu kontrol edilir.
+4. Servis tekrardan başlatılarak durumu kontrol edilir.
 	``` shell 
 	systemctl restart jetty.service
 	bash /opt/shibboleth-idp/bin/status.sh
 	```
 
-6. `Metadata Resolver Service` belirli aralıklarla çalışıp metadata provider dosyasındaki belirtilen federasyon metadatalarını çekmektedir. Ancak bu işlemi beklemeden doğrudan kendimiz `Metadata Resolver Service` çalıştırarak federasyon metadatalarını indirebiliriz.
+5. `Metadata Resolver Service` belirli aralıklarla çalışıp metadata provider dosyasındaki belirtilen federasyon metadatalarını çekmektedir. Ancak bu işlemi beklemeden doğrudan kendimiz `Metadata Resolver Service` çalıştırarak federasyon metadatalarını indirebiliriz.
     ``` shell 
     bash /opt/shibboleth-idp/bin/reload-service.sh -id shibboleth.MetadataResolverService
     ```
@@ -742,7 +739,7 @@ Nitelik filtresi (attribute filter) ile politikada belirlenen nitelik yayınlama
     tail -f /opt/shibboleth-idp/logs/*
     ```
  
-7. YETKİM test sayfasından (https://test.yetkim.org.tr/) kimlik sağlayıcısını arayarak test edebilirsiniz. 
+6. YETKİM test sayfasından (https://test.yetkim.org.tr/) kimlik sağlayıcısını arayarak test edebilirsiniz. 
     
     ![Yetkim Test Sayfası](./img/yetkim-test-page-1.png)
 
