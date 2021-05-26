@@ -691,6 +691,7 @@ Nitelik filtresi (attribute filter) ile politikada belirlenen nitelik yayınlama
     vim /opt/shibboleth-idp/conf/metadata-providers.xml
     ```
    
+        <!-- YETKIM -->
         <MetadataProvider id="YETKIM-Federation"
             xsi:type="FileBackedHTTPMetadataProvider"
             backingFile="%{idp.home}/metadata/yetkim-sp-metadata.xml"
@@ -704,6 +705,27 @@ Nitelik filtresi (attribute filter) ile politikada belirlenen nitelik yayınlama
             </MetadataFilter>
         </MetadataProvider>
         
+        <!-- YETKIM-EDUGAIN -->
+        <MetadataProvider
+           id="URLMD-YETKIM-EDUGAIN"
+           xsi:type="FileBackedHTTPMetadataProvider"
+           backingFile="%{idp.home}/metadata/edugain-sp-metadata.xml"
+           metadataURL="http://md.yetkim.org.tr/edugain-sp-metadata.xml">
+        
+           <!--
+               Verify the signature on the root element of the metadata aggregate using a trusted metadata signing certificate.
+           -->
+           <MetadataFilter xsi:type="SignatureValidation" requireSignedRoot="true" certificateFile="${idp.home}/metadata/yetkim-federation-cert.pem"/>        
+           <MetadataFilter xsi:type="RequiredValidUntil" maxValidityInterval="P10D"/>
+      
+           <MetadataFilter xsi:type="EntityRoleWhiteList">
+             <RetainedRole>md:SPSSODescriptor</RetainedRole>
+           </MetadataFilter>
+        </MetadataProvider>
+        
+    ***NOT :*** `metadata-providers.xml` içerisine 2 metadata provider tanımlanmaktadır. Bunlardan biri Türkiye yani YETKİM federasyonuna bağlı servis sağlayıcılar olup diğeri EduGAIN servisleri içindir. 
+    
+    
 5. Servis tekrardan başlatılarak durumu kontrol edilir.
 	``` shell 
 	systemctl restart jetty.service
