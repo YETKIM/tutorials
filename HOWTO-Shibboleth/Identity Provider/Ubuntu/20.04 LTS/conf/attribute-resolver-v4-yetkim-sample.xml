@@ -29,6 +29,28 @@
     </AttributeDefinition>
     -->
 
+    <!--
+            Elsevier ScienceDirect gibi eduPersonEntitlement niteliginde
+	    urn:mace:dir:entitlement:common-lib-terms degeri görmek isteyenler için. eduPersonAffiliation
+	    degeri "member" olanların eduPersonEntitlement nitelgine urn:mace:dir:entitlement:common-lib-terms ekleniyor.
+    -->
+    <!-- common-lib-terms -->
+    <AttributeDefinition id="eduPersonEntitlement" xsi:type="Simple">
+        <InputDataConnector ref="myLDAP" attributeNames="eduPersonEntitlement" />
+        <InputAttributeDefinition ref="eduPersonEntitlement.common-lib-terms" />
+    </AttributeDefinition>
+
+    <AttributeDefinition id="eduPersonEntitlement.common-lib-terms" xsi:type="Mapped" dependencyOnly="true">
+        <InputDataConnector ref="myLDAP" attributeNames="eduPersonAffiliation" />
+
+        <DefaultValue passThru="false"/>
+        <ValueMap>
+            <ReturnValue>urn:mace:dir:entitlement:common-lib-terms</ReturnValue>
+            <SourceValue>member</SourceValue>
+        </ValueMap>
+    </AttributeDefinition>
+    <!-- common-lib-terms -->
+
     <AttributeDefinition xsi:type="Simple" id="schacHomeOrganization">
         <InputDataConnector ref="staticAttributes" attributeNames="schacHomeOrganization"/>
     </AttributeDefinition>
@@ -104,7 +126,7 @@
              https://wiki.refeds.org/pages/viewpage.action?pageId=44957715#SCHACURNRegistry-homeOrganizationType
         -->
         <Attribute id="schacHomeOrganizationType">
-            <Value>urn:schac:homeOrganizationType:eu:higherEducationalInstitution</Value>
+            <Value>urn:schac:homeOrganizationType:int:university</Value>
         </Attribute>
      </DataConnector>
 
