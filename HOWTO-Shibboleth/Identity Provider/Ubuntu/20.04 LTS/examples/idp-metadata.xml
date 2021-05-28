@@ -4,7 +4,7 @@
     <IDPSSODescriptor protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol">
 
         <Extensions>
-            <shibmd:Scope regexp="false">140.63.125</shibmd:Scope>
+            <shibmd:Scope regexp="false">example.org</shibmd:Scope>
 
             <mdui:UIInfo>
                 <mdui:DisplayName xml:lang="en">A Name for the IdP at idp.example.org</mdui:DisplayName>
