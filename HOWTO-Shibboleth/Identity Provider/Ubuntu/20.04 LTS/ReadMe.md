@@ -24,7 +24,9 @@
 	4. [Attribute Registry ile Attribute Resolution Konfigüre Etme](#attribute-registry-ile-attribute-resolution-konfigüre-etme)
 	5. [Attribute Filter](#attribute-filter)
 	6. [SAML1 Devre Dışı Bırakma](#saml1-devre-dışı-bırakma)
-6. [YETKİM Test Federasyonuna Kayıt](#yetkim-test-federasyonuna-kayıt)
+6. [Federasyonuna Katılım](#federasyonuna-katılım)
+    1. [Katılmadan Önce](#katılmadan-önce)
+    2. [Test Federasyona Katılım](#test-federasyona-katılım)
 7. [Olası Hatalar](#olası-hatalar)
     1. [LDAP insufficient access rights](#ldap-insufficient-access-rights)
 8. [Kullanışlı Kaynaklar](#kullanışlı-kaynaklar)
@@ -674,8 +676,29 @@ Nitelik filtresi (attribute filter) ile politikada belirlenen nitelik yayınlama
 
 
 
-## YETKİM Test Federasyonuna Kayıt
- 
+## Federasyonuna Katılım
+
+### Katılmadan Önce
+Federasyona katılmadan önce kimlik sağlayıcınızı(IDP) ve metadatanızı test etmeniz gerekmektedir. 
+
+1. Kimlik sağlayıcınızı (IDP) https://samltest.id/ üzerinden test edebilirsiniz. 
+
+    - Detaylı bilgi için https://github.com/YETKIM/tutorials/tree/master/TEST dökümanına bakabilirsiniz. 
+    
+2. Federasyonun beklediği metadata değerlerini test etmeniz gerekmektedir. 
+
+    - https://technical.edugain.org/validator2 
+    ![Technical Edugain 1](./img/technical.edugain.org-step-1.png)
+    
+    - Bazı metadata'larda `md:ContactPerson` gibi değerin bulunmadığı gibi uyarılar verebilir. Bu durumda `idp-metadata.xml` içerisine eksik olan değerlerin eklenmesi gerekir. Örnek olarak http://md.yetkim.org.tr/yetkim-idp-metadata.xml federasyon metadatası incelenebilir. 
+    ![Technical Edugain 2](./img/technical.edugain.org-step-2.png)
+    
+    - Bu sayfada federasyon metadatası kontrol edildiğinden `mdrpi:RegistrationInfo` değerini bekleyecektir. Bu değer bu aşamada ***ÖNEMSENMEMELİDİR***. 
+    ![Technical Edugain 3](./img/technical.edugain.org-step-3.png)
+      
+
+
+### Test Federasyona Katılım 
 1. Öncelikle YETKİM Federasyonuna metadatanın iletilmesi gerekmektedir. yetkim@ulakbim.gov.tr mail adresinize `https://idp.example.org/idp/shibboleth` olarak mail atmanız gerekmektedir. YETKİM tarafından metadata, federasyona eklenecektir.
 
 2. YETKİM sertifikası yüklenmelidir
