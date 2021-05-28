@@ -418,7 +418,7 @@ Shibboleth kimlik sağlayıcısı, kullanıcılarını farklı veritabanlarında
 	vim /opt/shibboleth-idp/credentials/secrets.properties
 	```
 
-        \# Default access to LDAP authn and attribute stores.
+        # Default access to LDAP authn and attribute stores.
         idp.authn.LDAP.bindDNCredential              = ###IDPUSER_PASSWORD###
         idp.attribute.resolver.LDAP.bindDNCredential = %{idp.authn.LDAP.bindDNCredential:undefined}
 
@@ -488,6 +488,10 @@ Servis sağlayıcı, kimlik sağlayıcıdan `persistance NameID` talebinde bulun
 	`idp.persistentId.sourceAttribute` değeri KARARLI, KALICI ve YENİDEN ATANAMAZ olmalıdır.	
 
 		# For computed IDs, set a source attribute, and a secret salt in secrets.properties
+		# OpenLDAP UserID bilgisini "uid" niteliğinde tutar, Active Directory ise 
+		# UserID bilgisini "sAMAccountName" niteliğinde tutar.
+		# Active Directory kullanıyorsanız aşağıdaki tanımdaki "uid" yerine
+		# sAMAccountName yazmalısınız.
 		idp.persistentId.sourceAttribute = uid
 		idp.persistentId.encoding = BASE32
 		idp.persistentId.generator = shibboleth.ComputedPersistentIdGenerator
