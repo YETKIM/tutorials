@@ -14,7 +14,7 @@
 	3. [Shibboleth 4.1.0 (IDP) Kurulumu](#shibboleth-kurulumu)
 	4. [Jetty 9 Web Server Kurulumu](#jetty-9-web-server-kurulumu)
 	5. [Jetty 9 Web Server Yapılandırma](#jetty-9-web-server-yapılandırma)
-	6. [Apache Server Kurulumu](#apache-server-kurulumu)
+	6. [Apache Server Kurulumu](#apache-server-konfigürasyonu)
 4. [Veritabanı Bağlantıları](#veritabanı-bağlantıları)
 	1. [LDAP](#ldap)
 5. [Metadata Konfigürasyonu](#metadata-konfigürasyonu)
@@ -453,10 +453,12 @@ Shibboleth kimlik sağlayıcısı, kullanıcılarını farklı veritabanlarında
 		# List of attributes produced by the Data Connector that should be directly exported as resolved IdPAttributes without requiring any <AttributeDefinition>
 		idp.attribute.resolver.LDAP.exportAttributes    = ### List space-separated of attributes to retrieve directly from the directory ###
 
+    :warning: :warning: :warning: 
+    `idp.attribute.resolver.LDAP.exportAttributes` için verilecek nitelikler (attributes) persistent nameID politikasında kullanılacaktır. Bu sebeple LDAP için `uid` konulmaması durumunda `InvalidNameIDPolicy` hatası alınacaktır.
 
-	Dökümandaki önemli olan bir diğer konfigürasyon değişkeni ise `idp.attribute.resolver.LDAP.exportAttributes` değeridir. Burada dışarıya aktarılacak nitelikler (attribute) girilmelidir. Aşağıdaki örnekte olduğu gibi kullanıcılar IDP üzerinden giriş yaptıklarında `cn` `givenName` `sn` `mail` ve `eduPersonAffiliation` değerleri dışarıya aktarılacaktır.
+	Dökümandaki önemli olan bir diğer konfigürasyon değişkeni ise `idp.attribute.resolver.LDAP.exportAttributes` değeridir. Burada dışarıya aktarılacak nitelikler (attribute) girilmelidir. Aşağıdaki örnekte olduğu gibi kullanıcılar IDP üzerinden giriş yaptıklarında `uid` `cn` `givenName` `sn` `mail` ve `eduPersonAffiliation` değerleri dışarıya aktarılacaktır.
 
-	>idp.attribute.resolver.LDAP.exportAttributes    = cn givenName sn mail eduPersonAffiliation 
+	>idp.attribute.resolver.LDAP.exportAttributes    = uid cn givenName sn mail eduPersonAffiliation 
 
 5. Yapılan değişiklikler aktif hale getirilir ve IDP durumu kontrol edilir. 
 	``` shell 
