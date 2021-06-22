@@ -562,6 +562,7 @@ Kurulumda, kurumun kimlik doğrulama için LDAP kullandığı varsayımı yapıl
   * `vim /var/simplesamlphp/config/config-metarefresh.php`
   
   ```php
+  <?php
   // Ek özellikler ve yardım için:
   // https://simplesamlphp.org/docs/stable/metarefresh:simplesamlphp-automated_metadata
   $config = [
