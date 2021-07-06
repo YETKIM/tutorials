@@ -33,7 +33,7 @@ idp-ogrenci.authn.LDAP.returnAttributes                 = passwordExpirationTime
 idp-ogrenci.authn.LDAP.baseDN                           = dc=ogr,dc=usak,dc=local
 idp-ogrenci.authn.LDAP.subtreeSearch                   = false
 idp-ogrenci.authn.LDAP.userFilter                       = (sAMAccountName={user})
-idp-ogrenci.authn.LDAP.bindDN                           = bidb.ogrenci.manager@ogr.usak.edu.tr
+idp-ogrenci.authn.LDAP.bindDN                           = ******@ogr.usak.edu.tr
 
 idp-ogrenci.authn.LDAP.dnFormat                         = %s@ogr.usak.edu.tr
 
