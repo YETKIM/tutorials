@@ -140,9 +140,6 @@
         <AttributeRule attributeID="schacCountryOfResidence">
             <PermitValueRule xsi:type="AttributeInMetadata" onlyIfRequired="true" />
         </AttributeRule>
-        <AttributeRule attributeID="schacPersonalUniqueCode">
-            <PermitValueRule xsi:type="AttributeInMetadata" onlyIfRequired="true" />
-        </AttributeRule>
         <AttributeRule attributeID="schacExpiryDate">
             <PermitValueRule xsi:type="AttributeInMetadata" onlyIfRequired="true" />
         </AttributeRule>
@@ -321,9 +318,6 @@
             <PermitValueRule xsi:type="AttributeInMetadata" onlyIfRequired="true" />
         </AttributeRule>
         <AttributeRule attributeID="schacCountryOfResidence">
-            <PermitValueRule xsi:type="AttributeInMetadata" onlyIfRequired="true" />
-        </AttributeRule>
-        <AttributeRule attributeID="schacPersonalUniqueCode">
             <PermitValueRule xsi:type="AttributeInMetadata" onlyIfRequired="true" />
         </AttributeRule>
         <AttributeRule attributeID="schacExpiryDate">
