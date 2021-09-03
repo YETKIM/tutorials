@@ -716,7 +716,8 @@ Federasyona katılmadan önce kimlik sağlayıcınızı(IDP) ve metadatanızı t
     ``` shell
     vim /opt/shibboleth-idp/conf/metadata-providers.xml
     ```
-   
+    ve aşağıdaki tanımları dosyadaki son `</MetadataProvider>` satırının hemen üstüne ekleyin:
+
         <!-- YETKIM -->
         <MetadataProvider id="YETKIM-Federation"
             xsi:type="FileBackedHTTPMetadataProvider"
