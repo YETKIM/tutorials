@@ -15,7 +15,8 @@ YETKİM federasyonuna katılım eğitim dökümanıdır. Aşağıdaki linkler ü
 ## İçindekiler
 1. [Shibboleth](#shibboleth)
 2. [SimpleSamlPhp](#simplesamlphp)
-3. [TEST](#test)
+3. [S.S.S](#simplesamlphp)
+4. [TEST](#test)
 
 
 #### Shibboleth
@@ -23,6 +24,9 @@ Shibboleth kimlik ve servis sağlayıcı kurulumlarının bulunduğu dosyadır.
 
 #### SimpleSamlPhp
 SimpleSamlPhp kimlik ve servis sağlayıcı kurulumlarının bulunduğu dosyadır.
+
+#### Sıkça Sorulan Sorular
+Federasyona katılım, kurulum ve benzeri işlemlerde en çok alınan soruların bulunduğu dosyadır. 
 
 #### TEST
 Kimlik ve servis sağlayıcılarınızı test edebileceğiniz dökümandır. 

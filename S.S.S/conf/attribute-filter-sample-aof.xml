@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    This file is an EXAMPLE policy file.  While the policy presented in this
+    example file is illustrative of some simple cases, it relies on the names of
+    non-existent example services and the example attributes demonstrated in the
+    default attribute-resolver.xml file.
+
+    This example does contain some usable "general purpose" policies that may be
+    useful in conjunction with specific deployment choices, but those policies may
+    not be applicable to your specific needs or constraints.
+-->
+<AttributeFilterPolicyGroup id="ShibbolethFilterPolicy"
+                            xmlns="urn:mace:shibboleth:2.0:afp"
+                            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                            xsi:schemaLocation="urn:mace:shibboleth:2.0:afp http://shibboleth.net/schema/idp/shibboleth-afp.xsd">
+
+
+    <!-- Diğer Filtre Politikaları ...  -->
+    
+
+    <!-- 
+        PolicyRequirementRule altında belirtilen SP'ler için eduPersonEntitlement 
+        ve eduPersonScopedAffiliation niteliklerinde düzenlemeler yapılır
+
+        PolicyRequirementRule servislerinden IDP üzerine gelen isteklerde eğer mail
+        regex ile uyuşması durumunda eduPersonEntitlement ve eduPersonScopedAffiliation
+        nitelikleri güncellenir. 
+
+        IDP, belirlenen kurallardaki SP'ler için nitelikleri dönerken örneğin 
+        eduPersonEntitlement için urn:mace:dir:entitlement:common-lib-terms değerini
+        çıkarır
+
+        Aynı şekilde eduPersonScopedAffiliation niteliği için member ve student 
+        scopedAffiliation değerleri kaldırılır 
+    -->
+    <AttributeFilterPolicy id="YETKIM-AOF-Policy">
+
+        <PolicyRequirementRule xsi:type="AND">
+                <Rule xsi:type="OR">
+                    <Rule xsi:type="Requester" value="https://test.yetkim.org.tr/simplesaml/module.php/saml/sp/metadata.php/rs-cat-no-attr" />
+                    <Rule xsi:type="Requester" value="https://test.yetkim.org.tr/simplesaml/module.php/saml/sp/metadata.php/coco-cat-with-attr" />
+                </Rule>
+                <Rule xsi:type="ValueRegex" regex="^user.*$" attributeID="uid"/>
+        </PolicyRequirementRule>
+
+        <AttributeRule attributeID="eduPersonEntitlement">
+            <DenyValueRule xsi:type="AND">
+                <Rule xsi:type="Value" value="urn:mace:dir:entitlement:common-lib-terms" />
+            </DenyValueRule>
+        </AttributeRule>
+
+        <AttributeRule attributeID="eduPersonScopedAffiliation">
+            <DenyValueRule xsi:type="OR">
+                <Rule xsi:type="ValueRegex" regex="member.*$" />
+                <Rule xsi:type="ValueRegex" regex="student.*$" />
+            </DenyValueRule>
+        </AttributeRule>
+
+    </AttributeFilterPolicy>
+
+
+</AttributeFilterPolicyGroup>
