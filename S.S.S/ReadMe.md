@@ -20,7 +20,7 @@ Bunlardan birincisi AOF öğrencileri için lisanslı servislerin kısıtlanıp 
 YETKİM üzerinden erişilecek servisler için `eduPersonEntitlement` niteliğinin oluşturulması yeterli olacaktır. Ancak lisanslı servisler için AOF öğrencilerinin `eduPersonEntitlement` niteliğinin kaldırılması gerekmektedir.
 
 
-![Örnek](./conf/attribute-filter-sample-aof.xml) üzerinden AOF öğrencileri için `eduPersonEntitlement` ve `eduPersonScopedAffiliation` nitelikleri düzenlenebilir.
+[attribute-filter.xml](./conf/attribute-filter-sample-aof.xml) dosyasına örnekte olduğu gibi AOF öğrencileri için `eduPersonEntitlement` ve `eduPersonScopedAffiliation` nitelikleri düzenlenebilir.
 
 
     
