@@ -11,17 +11,57 @@
 
 ## Ayarlar
 
-### AOF Öğrenciler İçin Nasıl Bir Yol İzlenilmeli ?
+### AÖF Öğrencileri İçin Nasıl Bir Yol İzlenebilir ?
 
-Açık Öğretim Fakülteleri (AOF) bulunan üniversitelerin AOF öğrencileri için `eduPersonEntitlement` ve `eduPersonScopedAffiliation` nitelikleri için iki farklı yaklaşım bulunmaktadır.
+Açık Öğretim Fakültesi (AÖF) bulunan üniversiteler, lisanslı materyalleri (Kütüphane için veritabanları, Microsoft Site Lisansı, vb.) satın alırken AÖF öğrencilerini hariç tutarlar, aksi takdirde alım maliyetleri çok yüksek olur.
 
-Bunlardan birincisi AOF öğrencileri için lisanslı servislerin kısıtlanıp diğer tüm servislere erişimlerinin sağlanmasıdır. 
+Bu üniversitelerin kimlik sunucularında AÖF öğrencilerin de affiliation değerleri _student_ ve _member_ olur.
 
-YETKİM üzerinden erişilecek servisler için `eduPersonEntitlement` niteliğinin oluşturulması yeterli olacaktır. Ancak lisanslı servisler için AOF öğrencilerinin `eduPersonEntitlement` niteliğinin kaldırılması gerekmektedir.
+Lisanslı servislere kurumsal kimlik ile erişimde, servisler yetki kontrolünü genelde _eduPersonEntitlement_ ve _eduPersonScopedAffiliation_ nitelikleri ile yaparlar.
 
+Dolayısıyla AÖF öğrencilerinin kurumsal kimlikleri ile lisanslı bu servislere erişimlerinin engellenmesi gerekmekedir. Bu durumda seçili servisler için AÖF öğrencilerinin _student_ ve _member_ affiliation değerlerinin yayımlanmaması ve eduPersonEntitlement niteliğinde de _urn:mace:dir:entitlement:common-lib-terms_ değerinin yayımlanmaması gerekmektedir. Bu iş aşağıdaki filtre ile yapılabilmektedir (attribute-filter.xml dosyasına eklenerek):
 
-[attribute-filter.xml](./conf/attribute-filter-sample-aof.xml) dosyasına örnekte olduğu gibi AOF öğrencileri için `eduPersonEntitlement` ve `eduPersonScopedAffiliation` nitelikleri düzenlenebilir.
+```xml
+<AttributeFilterPolicy id="YETKIM-AOF-Policy">
+    <PolicyRequirementRule xsi:type="AND">
 
+            <!-- AÖF öğrencilerinin erişiminin olmayacağı servislerin varlık kimlikleri (entityID) buraya eklenmeli. -->
+            <Rule xsi:type="OR">
+                <Rule xsi:type="Requester" value="https://dl.acm.org/shibboleth" />
+                <Rule xsi:type="Requester" value="https://fsso.springer.com" />
+                <Rule xsi:type="Requester" value="https://iam.atypon.com/shibboleth" />
+                <Rule xsi:type="Requester" value="https://ieeexplore.ieee.org/shibboleth-sp" />
+                <Rule xsi:type="Requester" value="https://oneId.wolterskluwer.com/oa/entity" />
+                <Rule xsi:type="Requester" value="https://pubs.acs.org/shibboleth" />
+                <Rule xsi:type="Requester" value="https://sdauth.sciencedirect.com/" />
+                <Rule xsi:type="Requester" value="https://secure.nature.com/shibboleth" />
+                <Rule xsi:type="Requester" value="https://shibboleth-sp.prod.proquest.com/shibboleth" />
+                <Rule xsi:type="Requester" value="https://shibboleth.cambridge.org/shibboleth-sp" />
+                <Rule xsi:type="Requester" value="http://shibboleth.ebscohost.com" />
+                <Rule xsi:type="Requester" value="https://shibboleth.ovid.com/entity" />
+                <Rule xsi:type="Requester" value="https://shibbolethsp.jstor.org/shibboleth" />
+                <Rule xsi:type="Requester" value="https://sp.emerald.com/sp" />
+                <Rule xsi:type="Requester" value="http://sp.sams-sigma.com/shibboleth" />
+                <Rule xsi:type="Requester" value="https://sp.tshhosting.com/shibboleth" />
+                <Rule xsi:type="Requester" value="https://www.tandfonline.com/shibboleth" />
+            </Rule>
+
+            <!-- AÖF öğrencilerini filtreleyebileceğimiz bir kural, örneğin eposta adresi aof.universite.edu.tr ile biten kullanıcılar: -->
+            <Rule xsi:type="ValueRegex" regex="aof.universite.edu.tr$" attributeID="mail"/>
+    </PolicyRequirementRule>
+
+    <AttributeRule attributeID="eduPersonEntitlement">
+        <DenyValueRule xsi:type="Value" value="urn:mace:dir:entitlement:common-lib-terms" />
+    </AttributeRule>
+
+    <AttributeRule attributeID="eduPersonScopedAffiliation">
+        <DenyValueRule xsi:type="OR">
+            <Rule xsi:type="ValueRegex" regex="^member.*$" />
+            <Rule xsi:type="ValueRegex" regex="^student.*$" />
+        </DenyValueRule>
+    </AttributeRule>
+</AttributeFilterPolicy>
+```
 
     
 ## Kullanışlı Kaynaklar
