@@ -4,8 +4,13 @@
 
 
 ## İçindekiler
-1. [Ayarlar](#gereksinimler)
-	1. [AOF Öğrencileri Yetkilendirme](#donanım)
+1. [Ayarlar](#ayarlar)
+    1. [AOF Öğrencileri Yetkilendirme](#af-rencileri-iin-nasl-bir-yol-izlenebilir-)
+    2. [displayName Oluşturma](#displayname-oluturma-)
+    3. [givenName ve sn ile cn Oluşturma](#givenname-ve-sn-ile-cn-oluturma-)
+    4. [cn & displayName](#cn--displayname-)
+    5. [eduPersonAffiliation ve eduPersonScopedAffiliation Oluşturma](#edupersonaffiliation-ve-edupersonscopedaffiliation-oluturma)
+    6. [schacPersonalUniqueCode Oluşturma](#schacpersonaluniquecode-oluturma)
 2. [Kullanışlı Kaynaklar](#kullanışlı-kaynaklar)
 	
 
@@ -63,7 +68,102 @@ Dolayısıyla AÖF öğrencilerinin kurumsal kimlikleri ile lisanslı bu servisl
 </AttributeFilterPolicy>
 ```
 
-    
+
+### displayName Oluşturma ?
+`givenName` ve `sn` değerlerinden `displayName` niteliğini oluşturmak için aşağıdaki tanımlama `attribute-resolver.xml` dosyasına eklenmelidir.
+
+(attribute-resolver.xml)
+```xml
+<AttributeDefinition id="displayName" xsi:type="Template">
+    <InputDataConnector ref="myLDAP" attributeNames="givenName sn" />
+    <Template>${givenName} ${sn}</Template>
+</AttributeDefinition>
+```
+
+
+### givenName ve sn ile cn Oluşturma ?
+`givenName` ve `sn` değerlerinden `cn` niteliğini oluşturmak için aşağıdaki tanımlama `attribute-resolver.xml` dosyasına eklenmelidir.
+
+(attribute-resolver.xml)
+```xml
+<AttributeDefinition id="cn" xsi:type="Template">
+    <InputDataConnector ref="myLDAP" attributeNames="givenName sn" />
+    <Template>${givenName} ${sn}</Template>
+</AttributeDefinition>
+```
+
+
+### cn & displayName ?
+`displayName` değerinden `cn` değeri oluşturulması için aşağıdaki tanımlama `attribute-resolver.xml` dosyasına eklenmelidir.
+
+(attribute-resolver.xml)
+```xml
+<AttributeDefinition id="cn" xsi:type="Template">
+    <InputDataConnector ref="myLDAP" attributeNames="displayName" />
+    <Template>${displayName}</Template>
+</AttributeDefinition>
+```
+
+Aynı yöntemle tam tersi şekilde `cn` değerinden `displayName` değeri oluşturulabilir.
+
+
+### eduPersonAffiliation ve eduPersonScopedAffiliation Oluşturma
+Aşağıdaki örnekte LDAP üzerinde belirli ou altında bulunan dn'ler (distinguishedName) için `eduPersonAffiliation` niteliğinin nasıl üretildiği gösterilmiştir.
+
+Tüm kullanıcılara default olarak `affiliate` değeri verilirken `OU=ogrenci,DC=universite,DC=edu,DC=tr` gibi bir değer için `member` ve `student` değerlerini vermektedir.
+
+(attribute-resolver.xml)
+```xml
+<AttributeDefinition id="eduPersonAffiliation" xsi:type="Mapped">
+    <InputDataConnector ref="myLDAP" attributeNames="distinguishedName" />
+    <DefaultValue>affiliate</DefaultValue>
+
+    <ValueMap>
+            <ReturnValue>staff</ReturnValue>
+            <SourceValue>^.*?,OU=idari,DC=universite,DC=edu,DC=tr.*$</SourceValue>
+    </ValueMap>
+    <ValueMap>
+            <ReturnValue>faculty</ReturnValue>
+            <SourceValue>^.*?,OU=akademik,DC=universite,DC=edu,DC=tr.*$</SourceValue>
+    </ValueMap>
+    <ValueMap>
+            <ReturnValue>student</ReturnValue>
+            <SourceValue>^.*?,OU=ogrenci,DC=universite,DC=edu,DC=tr.*$</SourceValue>
+    </ValueMap>
+    <ValueMap>
+            <ReturnValue>member</ReturnValue>
+            <SourceValue>^.*?,OU=ogrenci,DC=universite,DC=edu,DC=tr.*$</SourceValue>
+            <SourceValue>^.*?,OU=idari,DC=universite,DC=edu,DC=tr.*$</SourceValue>
+            <SourceValue>^.*?,OU=akademik, DC=universite,DC=edu,DC=tr.*$</SourceValue>
+    </ValueMap>
+</AttributeDefinition>
+
+<AttributeDefinition scope="%{idp.scope}" xsi:type="Scoped" id="eduPersonScopedAffiliation">
+    <InputAttributeDefinition ref="eduPersonAffiliation" />
+</AttributeDefinition>
+```
+
+
+### schacPersonalUniqueCode Oluşturma
+`schacPersonalUniqueCode` değeri oluşturulurken öncelikle template olarak `stdSource` oluşturulur. Daha sonrasında `stdSource` kullanılarak `schacPersonalUniqueCode` üretilmektedir. 
+
+(attribute-resolver.xml)
+```xml
+<AttributeDefinition id="stdSource" xsi:type="Template" dependencyOnly="true">
+    <InputDataConnector ref="myLDAP" attributeNames="sAMAccountName distinguishedName"/>
+    <Template>${sAMAccountName}::${distinguishedName}</Template>
+</AttributeDefinition>
+
+<AttributeDefinition id="schacPersonalUniqueCode" xsi:type="Mapped">
+    <InputAttributeDefinition ref="stdSource" />
+    <ValueMap>
+        <ReturnValue>urn:schac:personalUniqueCode:int:esi:%{idp.scope}:$1</ReturnValue>
+        <SourceValue>^([^:]+)::$</SourceValue>
+    </ValueMap>
+</AttributeDefinition>
+```
+
+
 ## Kullanışlı Kaynaklar
 - https://wiki.univie.ac.at/plugins/viewsource/viewpagesrc.action?pageId=44441031
 - 
