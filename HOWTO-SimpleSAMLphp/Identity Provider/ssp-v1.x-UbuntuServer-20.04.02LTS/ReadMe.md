@@ -492,12 +492,13 @@ Kurulumda, kurumun kimlik doğrulama için LDAP kullandığı varsayımı yapıl
 
                // consent (rıza) modulu. Secimler cerezlerde saklaniyor.
                // ayarlar icin: https://simplesamlphp.org/docs/stable/consent:consent
+	       /*
                97 => [
                    'class' => 'consent:Consent',
                    'store' => 'consent:Cookie',
                    'focus' => 'yes',
                    'checked' => false
-               ],
+               ],*/
 
                // If language is set in Consent module it will be added as an attribute
                99 => 'core:LanguageAdaptor',
